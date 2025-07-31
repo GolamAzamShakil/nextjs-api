@@ -9,7 +9,7 @@ export const GET = async () => {
     try {
         await connectDB();
 
-        const users = await User.find();
+        const users = await User.find({}, '-password');
 
         return new NextResponse(JSON.stringify(users), { status: 200 });
     } catch (error: any) {
