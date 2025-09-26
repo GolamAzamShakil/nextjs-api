@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import connectDB from "../../../../../lib/db"
 import User from "../../../../../lib/models/users";
 import { Types } from "mongoose";
+import argon2 from 'argon2';
+import { PathParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 
 const ObjectId = require("mongoose").Types.ObjectId
 
@@ -9,7 +11,7 @@ export const GET = async () => {
     try {
         await connectDB();
 
-        const users = await User.find({}, '-password');
+        const users = await User.find({}, '-userPassword');
 
         return new NextResponse(JSON.stringify(users), { status: 200 });
     } catch (error: any) {
@@ -20,13 +22,39 @@ export const GET = async () => {
 export const POST = async (request: Request) => {
     try {
         const body = await request.json();
+        const { userId, userName, userEmail, userPassword, isMfaEnabled } = body;
 
+        if (
+          !userId ||
+          !userName ||
+          !userEmail ||
+          !userPassword ||
+          typeof isMfaEnabled !== "boolean"
+        ) {
+          return NextResponse.json(
+            { message: "Missing required fields" },
+            { status: 400 }
+          );
+        }
         await connectDB();
 
-        const newUser = new User(body);
+        const hashedPassword = await argon2.hash(userPassword);
+
+        const newUser = new User({
+          userId,
+          userName,
+          userEmail,
+          userPassword: hashedPassword,
+          isMfaEnabled,
+        });
         await newUser.save();
 
-        return new NextResponse( JSON.stringify({ message: "New user is created!", user: newUser }), { status: 200 } )
+        //return new NextResponse( JSON.stringify({ message: "New user is created!", user: newUser }), { status: 200 } )
+
+        // Return user object without password
+        const { userPassword: _, ...userWithoutPassword } = newUser.toObject();
+
+        return NextResponse.json(userWithoutPassword, { status: 201 });
     } catch (error: any) {
         return new NextResponse("Error occurred during creating user- " + error.message, { status: 500 })
     }

@@ -1,11 +1,13 @@
 import { model, models, Schema } from "mongoose";
+import { IUser } from "../interfaces/IUser";
 
-const UserSchema = new Schema(
+const UserSchema = new Schema<IUser>(
     {
-        email: {type: "string", required: true, unique: true},
+        userId: {type: "string", required: true},
         userName: {type: "string", required: true, unique: true},
-        password: {type: "string", required: true, },
-        isMfaActivated: {type: "boolean", required: false},
+        userEmail: {type: "string", required: true, unique: true},
+        userPassword: {type: "string", required: true, },
+        isMfaEnabled: {type: "boolean", required: false, default: false},
     },
     {
         timestamps: true,
