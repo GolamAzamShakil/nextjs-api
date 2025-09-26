@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import connectDB from "../../../../lib/db";
-import User from "../../../../lib/models/users";
+import connectDB from "../../../../../lib/db";
+import User from "../../../../../lib/models/users";
 import { Types } from "mongoose";
 import argon2 from "argon2";
 
@@ -21,7 +21,7 @@ export const GET = async () => {
   }
 };
 
-/* export const POST = async (request: Request) => {
+export const POST = async (request: Request) => {
   try {
     const body = await request.json();
     const { userId, userName, userEmail, userPassword, isMfaEnabled } = body;
@@ -60,7 +60,7 @@ export const GET = async () => {
       { status: 500 }
     );
   }
-}; */
+};
 
 export const PATCH = async (request: Request) => {
   try {
