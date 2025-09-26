@@ -25,7 +25,13 @@ export const GET = async ( request: Request, context: { params: any } ) => {
 
         return new NextResponse(JSON.stringify(userFind), { status: 200 });
     } catch (error: any) {
-        return new NextResponse("Error occurred during fetching user- " + error.message, { status: 501 })
+        return new NextResponse(
+          JSON.stringify({
+            message: "Error occurred during fetching user",
+            error: error.message,
+          }),
+          { status: 500, headers: { "Content-Type": "application/json" } }
+        );
     }
 }
 
