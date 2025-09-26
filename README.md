@@ -1,9 +1,12 @@
 # Project Name
 
-
-API endpoints for user and product related data resources.
+NextjsAPI
+_API endpoints for user and product related data resources.
 
 ![](header.png)
+
+## Live URL
+[https://nextjs-api-rust.vercel.app/](https://nextjs-api-rust.vercel.app/)
 
 
 ## Usage example
@@ -48,7 +51,7 @@ POST Request
 
 Md. Golam Azam – golamazam1010@gmail.com
 
-[https://github.com/GolamAzamShakil](https://github.com/dbader/)
+[https://github.com/GolamAzamShakil](https://github.com/GolamAzamShakil/)
 
 ## Contributing
 
