@@ -3,7 +3,6 @@ import connectDB from "../../../../lib/db";
 import User from "../../../../lib/models/users";
 import { Types } from "mongoose";
 import argon2 from "argon2";
-import { PathParamsContext } from "next/dist/shared/lib/hooks-client-context.shared-runtime";
 
 const ObjectId = require("mongoose").Types.ObjectId;
 

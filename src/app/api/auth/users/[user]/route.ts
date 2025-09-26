@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { Types, ObjectId } from "mongoose";
-import connectDB from "../../../../../lib/db";
-import User from "../../../../../lib/models/users";
+import connectDB from "../../../../../../lib/db";
+import User from "../../../../../../lib/models/users";
 import argon2 from "argon2";
 
 //const ObjectId = require("mongoose").Types.ObjectId
