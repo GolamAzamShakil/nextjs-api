@@ -6,7 +6,7 @@ _API endpoints for user and product related data resources._
 ![](header.png)
 
 ## Live URL
-[https://nextjs-api-rust.vercel.app/](https://nextjs-api-rust.vercel.app/)
+[https://nextjs-api-five-psi.vercel.app/](https://nextjs-api-five-psi.vercel.app/)
 
 
 ## Usage example
