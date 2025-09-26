@@ -1,7 +1,7 @@
 # Project Name
 
 NextjsAPI
-_API endpoints for user and product related data resources.
+_API endpoints for user and product related data resources._
 
 ![](header.png)
 
