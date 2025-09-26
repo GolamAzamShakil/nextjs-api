@@ -43,7 +43,6 @@ export const POST = async (request: Request, context: { params: any }) => {
         const { userName, userEmail, userPassword, isMfaEnabled } = body;
 
         if (
-          /* !userId || */
           !userName ||
           !userEmail ||
           !userPassword ||
@@ -67,9 +66,6 @@ export const POST = async (request: Request, context: { params: any }) => {
         });
         await newUser.save();
 
-        //return new NextResponse( JSON.stringify({ message: "New user is created!", user: newUser }), { status: 200 } )
-
-        // Return user object without password
         const { userPassword: _, ...userWithoutPassword } = newUser.toObject();
 
         return new NextResponse(

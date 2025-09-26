@@ -49,9 +49,6 @@ export const POST = async (request: Request) => {
         });
         await newUser.save();
 
-        //return new NextResponse( JSON.stringify({ message: "New user is created!", user: newUser }), { status: 200 } )
-
-        // Return user object without password
         const { userPassword: _, ...userWithoutPassword } = newUser.toObject();
 
         return NextResponse.json(userWithoutPassword, { status: 201 });

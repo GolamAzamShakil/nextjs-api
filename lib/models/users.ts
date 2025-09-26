@@ -3,7 +3,7 @@ import { IUser } from "../interfaces/IUser";
 
 const UserSchema = new Schema<IUser>(
     {
-        userId: {type: "string", required: true},
+        userId: {type: "string", required: true, unique: true},
         userName: {type: "string", required: true, unique: true},
         userEmail: {type: "string", required: true, unique: true},
         userPassword: {type: "string", required: true, },

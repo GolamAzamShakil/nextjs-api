@@ -4,7 +4,7 @@ export interface IUser extends Document {
   userId: string;
   userName: string;
   userEmail: string;
-  userPassword: string; // hashed password
+  userPassword: string;
   isMfaEnabled?: boolean;
 };
 
