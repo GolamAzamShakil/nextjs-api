@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Project Name
 
-## Getting Started
 
-First, run the development server:
+API endpoints for user and product related data resources.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+![](header.png)
+
+
+## Usage example
+GET Request
+```sh
+/api/users
+```
+```sh
+/api/users/golamazam
+```
+```sh
+/api/products
+```
+```sh
+/api/products/{productId}?productAltId={}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+POST Request
+```sh
+/api/users/{userId}
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+{   
+    "userName": "",
+    "userEmail": "",
+    "userPassword": "",
+    "isMfaEnabled": false
+}
+```
+```sh
+/api/users/{productId}
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+{
+    "productName": "",
+    "productAltId": "",
+    "productCategory": "",
+    "productImageLink": ""
+}
+```
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+## Meta
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Md. Golam Azam – golamazam1010@gmail.com
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+[https://github.com/GolamAzamShakil](https://github.com/dbader/)
 
-## Deploy on Vercel
+## Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Fork it (<https://github.com/GolamAzamShakil/nextjs-api/forks>)
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Commit your changes (`git commit -am 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Create a new Pull Request
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<!-- Markdown link & img dfn's -->
+[npm-image]: https://img.shields.io/npm/v/datadog-metrics.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/datadog-metrics
+[npm-downloads]: https://img.shields.io/npm/dm/datadog-metrics.svg?style=flat-square
+[travis-image]: https://img.shields.io/travis/dbader/node-datadog-metrics/master.svg?style=flat-square
+[travis-url]: https://travis-ci.org/dbader/node-datadog-metrics
+[wiki]: https://github.com/yourname/yourproject/wiki
