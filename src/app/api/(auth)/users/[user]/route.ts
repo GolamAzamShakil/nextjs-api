@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { Types, ObjectId } from "mongoose";
 import connectDB from "../../../../../../lib/db";
 import User from "../../../../../../lib/models/users";
-import argon2 from "argon2";
+import { hashPassword } from "../../../../../../lib/psdHashing";
 
 //const ObjectId = require("mongoose").Types.ObjectId
 
@@ -55,7 +55,7 @@ export const POST = async (request: Request, context: { params: any }) => {
     }
     await connectDB();
 
-    const hashedPassword = await argon2.hash(userPassword);
+    const hashedPassword = await hashPassword(userPassword);
 
     const newUser = new User({
       userId,

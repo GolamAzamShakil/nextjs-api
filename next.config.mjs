@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
-//const nextConfig = {};
-const OPTIMIZE_OUTPUT = true;
+const nextConfig = {};
+/* const OPTIMIZE_OUTPUT = true;
 
 const nextConfig = {
   ...(OPTIMIZE_OUTPUT && {
@@ -11,6 +11,6 @@ const nextConfig = {
       "/": ["./node_modules/argon2/prebuilds//.node"],
     },
   },
-};
+}; */
 
 export default nextConfig;
