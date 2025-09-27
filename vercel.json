@@ -1,3 +1,0 @@
-{
-  "installCommand": "pnpm install && pnpm rebuild argon2 --build-from-source"
-}
