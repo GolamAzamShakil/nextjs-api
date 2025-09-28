@@ -10,7 +10,7 @@ const ProductDetailsSchema = new Schema<IProductDetails>(
     productCategory: {
       type: "string",
       enum: {
-        values: Object.values(ProductCategory), // ["Super", "Good", "Average", "Bad"],
+        values: Object.values(ProductCategory),
         message: "{VALUE} is not supported",
       },
       required: true,

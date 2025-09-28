@@ -2,7 +2,7 @@ import mongoose, { Document, Types } from 'mongoose';
 
 export enum ProductCategory {
   ELECTRONICS = "electronics",
-  CLOTHING = "clothing",
+  CLOTHING = "clothings",
   APPLIANCES = "appliances",
   GROCERIES = "groceries",
   BOOKS = "books"
