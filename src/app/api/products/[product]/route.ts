@@ -4,6 +4,7 @@ import connectDB from "../../../../../lib/db";
 import Product from "../../../../../lib/models/products";
 import { ProductCategory } from "../../../../../lib/interfaces/IProduct";
 import ProductDetails from "../../../../../lib/models/productDetails";
+import { convertGoogleDriveUrl } from "../../../../../lib/linkConverter";
 
 
 export const GET = async (request: Request, context: { params: any }) => {
@@ -90,6 +91,7 @@ export const POST = async (request: Request, context: { params: any }) => {
     //const category = searchParams.get("category");
     const body = await request.json();
     const { productName, productAltId, productCategory, productImageLink } = body;
+    const convertedLink = convertGoogleDriveUrl(productImageLink);
 
     if (!Object.values(ProductCategory).includes(productCategory)) {
       return new NextResponse(
@@ -125,7 +127,7 @@ export const POST = async (request: Request, context: { params: any }) => {
     //await newCategory.save();
 
     if (!product) {
-      const productDetails = await ProductDetails.create({ productAltId, productCategory, productImageLink });
+      const productDetails = await ProductDetails.create({ productAltId, productCategory, productImageLink: convertedLink });
 
       product = await Product.create({
         productId,
@@ -139,14 +141,14 @@ export const POST = async (request: Request, context: { params: any }) => {
         await ProductDetails.findByIdAndUpdate(product.productDetails._id, {
           productAltId,
           productCategory,
-          productImageLink,
+          productImageLink: convertedLink,
         });
       } else {
         // productDetails might just be ObjectId reference if not populated
         await ProductDetails.findByIdAndUpdate(product.productDetails, {
           productAltId,
           productCategory,
-          productImageLink,
+          productImageLink: convertedLink,
         });
       }
       await product.save();

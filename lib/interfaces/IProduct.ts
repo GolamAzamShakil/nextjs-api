@@ -1,10 +1,11 @@
 import mongoose, { Document, Types } from 'mongoose';
 
 export enum ProductCategory {
-  SUPER = "super",
-  GOOD = "good",
-  AVERAGE = "average",
-  BAD = "bad",
+  ELECTRONICS = "electronics",
+  CLOTHING = "clothing",
+  APPLIANCES = "appliances",
+  GROCERIES = "groceries",
+  BOOKS = "books"
 }
 
 export interface IProductDetails extends Document {
