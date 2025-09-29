@@ -14,4 +14,3 @@ export const GET = async () => {
         return new NextResponse("Error occurred during fetching users- " + error.message, { status: 500 })
     }
 }
-
