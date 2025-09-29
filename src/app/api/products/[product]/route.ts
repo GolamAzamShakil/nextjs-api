@@ -90,7 +90,7 @@ export const POST = async (request: Request, context: { params: any }) => {
     //const { searchParams } = new URL(request.url);
     //const category = searchParams.get("category");
     const body = await request.json();
-    const { productName, productAltId, productCategory, productImageLink } = body;
+    const { productName, productAltId, productCategory, productImageLink, productAvailability } = body;
     const convertedLink = convertGoogleDriveUrl(productImageLink);
 
     if (!Object.values(ProductCategory).includes(productCategory)) {
@@ -127,7 +127,7 @@ export const POST = async (request: Request, context: { params: any }) => {
     //await newCategory.save();
 
     if (!product) {
-      const productDetails = await ProductDetails.create({ productAltId, productCategory, productImageLink: convertedLink });
+      const productDetails = await ProductDetails.create({ productAltId, productCategory, productImageLink: convertedLink, productAvailability });
 
       product = await Product.create({
         productId,
@@ -142,6 +142,7 @@ export const POST = async (request: Request, context: { params: any }) => {
           productAltId,
           productCategory,
           productImageLink: convertedLink,
+          productAvailability,
         });
       } else {
         // productDetails might just be ObjectId reference if not populated
@@ -149,6 +150,7 @@ export const POST = async (request: Request, context: { params: any }) => {
           productAltId,
           productCategory,
           productImageLink: convertedLink,
+          productAvailability,
         });
       }
       await product.save();

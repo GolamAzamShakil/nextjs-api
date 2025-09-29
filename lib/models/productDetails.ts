@@ -18,6 +18,10 @@ const ProductDetailsSchema = new Schema<IProductDetails>(
     productImageLink: {
       type: String,
     },
+    productAvailability: {
+      type: "number",
+      required: true,
+    }
   },
   {
     timestamps: true,

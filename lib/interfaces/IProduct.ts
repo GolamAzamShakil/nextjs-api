@@ -1,7 +1,7 @@
 import mongoose, { Document, Types } from 'mongoose';
 
 export enum ProductCategory {
-  ELECTRONICS = "electronics",
+  ELECTRICS = "electrics",
   CLOTHING = "clothings",
   APPLIANCES = "appliances",
   GROCERIES = "groceries",
@@ -12,6 +12,7 @@ export interface IProductDetails extends Document {
   productAltId?: string;
   productCategory: ProductCategory;
   productImageLink?: string;
+  productAvailability: number;
 }
 
 export interface IProduct extends Document {
