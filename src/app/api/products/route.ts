@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import connectDB from "../../../../lib/db";
 import Product from "../../../../lib/models/products";
 
-export const dynamic = "force-no-store";
+export const dynamic = "force-dynamic";
 
 
 export const GET = async () => {
