@@ -1,19 +1,27 @@
 import { NextResponse } from "next/server";
-import { Types } from "mongoose";
 import connectDB from "../../../../lib/db";
-import Product from "../../../../lib/models/products";
+//import Product from "../../../../lib/models/products";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import ProductDetails from "../../../../lib/models/productDetails";
+import { Product } from "../../../../lib/models";
 
 export const dynamic = "force-dynamic";
 
-
 export const GET = async () => {
-    try {
-        await connectDB();
+  try {
+    await connectDB();
 
-        const products = await Product.find({}).populate("productDetails");
+    void ProductDetails
+    const products = await Product.find({})
+      .populate("productDetails");
+      //.lean(); // lean() for better performance if you don't need Mongoose documents
 
-        return new NextResponse(JSON.stringify(products), { status: 200 });
-    } catch (error: any) {
-        return new NextResponse("Error occurred during fetching users- " + error.message, { status: 500 })
-    }
+    return NextResponse.json(products, { status: 200 });
+  } catch (error: any) {
+    console.error("Error fetching products:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch products", message: error.message },
+      { status: 500 }
+    );
+  }
 }

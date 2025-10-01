@@ -5,10 +5,10 @@ import { IProductDetails, ProductCategory } from "../interfaces/IProduct";
 const ProductDetailsSchema = new Schema<IProductDetails>(
   {
     productAltId: {
-      type: "string",
+      type: String,
     },
     productCategory: {
-      type: "string",
+      type: String,
       enum: {
         values: Object.values(ProductCategory),
         message: "{VALUE} is not supported",
@@ -19,7 +19,7 @@ const ProductDetailsSchema = new Schema<IProductDetails>(
       type: String,
     },
     productAvailability: {
-      type: "number",
+      type: Number,
       required: true,
     }
   },
@@ -28,6 +28,6 @@ const ProductDetailsSchema = new Schema<IProductDetails>(
   }
 );
 
-const ProductDetails = mongoose.model("ProductDetails", ProductDetailsSchema);
+const ProductDetails = mongoose.models.ProductDetails || mongoose.model<IProductDetails>("ProductDetails", ProductDetailsSchema);
 
 export default ProductDetails;

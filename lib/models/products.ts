@@ -1,10 +1,10 @@
-import { model, models, Schema } from "mongoose";
+import mongoose, { model, models, Schema } from "mongoose";
 import { IProduct } from "../interfaces/IProduct";
 
 const ProductSchema = new Schema<IProduct>(
     {
-        productId: { type: "string", required: true, unique: true },
-        productName: { type: "string" },
+        productId: { type: String, required: true, unique: true, index: true },
+        productName: { type: String },
         productDetails: { type: Schema.Types.ObjectId, ref: "ProductDetails", required: true }
     },
     {
@@ -12,7 +12,6 @@ const ProductSchema = new Schema<IProduct>(
     }
 );
 
-const Product = models.Product || model("Product", ProductSchema);
+const Product = mongoose.models.Product || mongoose.model<IProduct>("Product", ProductSchema);
 
 export default Product;
-

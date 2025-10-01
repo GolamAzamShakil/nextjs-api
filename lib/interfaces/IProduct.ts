@@ -20,3 +20,7 @@ export interface IProduct extends Document {
   productName?: string;
   productDetails: Types.ObjectId | IProductDetails;
 }
+
+export interface IProductPopulated extends Omit<IProduct, 'productDetails'> {
+  productDetails: IProductDetails;
+}
