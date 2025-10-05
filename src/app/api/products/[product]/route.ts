@@ -1,13 +1,60 @@
 import { Types } from "mongoose";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import connectDB from "../../../../../lib/db";
-import Product from "../../../../../lib/models/products";
 import { ProductCategory } from "../../../../../lib/interfaces/IProduct";
 import ProductDetails from "../../../../../lib/models/productDetails";
 import { convertGoogleDriveUrl } from "../../../../../lib/linkConverter";
+import { Product } from "../../../../../lib/models";
 
 
-export const GET = async (request: Request, context: { params: any }) => {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { productId: string } }
+) {
+  try {
+    await connectDB();
+
+    const { productId } = params
+
+    if (!productId || productId.trim().length === 0) {
+      return NextResponse.json(
+        { error: 'Product ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const product = await Product.findOne({ productId: productId })
+      .populate({
+          path: 'productDetails',
+          select: '-__v'
+        })
+      .select('-__v')
+      .lean()
+      .exec();
+
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Product not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(product, { 
+      status: 200,
+      headers: {
+        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=240'
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch product', message: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
+  }
+}
+
+/* export const GET = async (request: Request, context: { params: any }) => {
   const productId = context.params.product;
   try {
     let productAltId: string | null = null;
@@ -24,18 +71,7 @@ export const GET = async (request: Request, context: { params: any }) => {
           { status: 400 }
         );
       }
-    }
-    
-
-    /* if (!productId || !Types.ObjectId.isValid(productId)) {
-      return new NextResponse(
-        JSON.stringify({ message: "Invalid or missing productId" }),
-        {
-          status: 400,
-        }
-      );
-    } */
-    
+    }    
 
     await connectDB();
 
@@ -47,20 +83,20 @@ export const GET = async (request: Request, context: { params: any }) => {
       }
     }
 
-    /* if (productId) {
-      product = await Product.findOne({ productId }).populate("productDetails");
-    } else if (!product || productAltId) {
-      // Since productDetails is referenced, we find the product by joined productDetails.productAltId
-      product = await Product.findOne().populate({
-        path: "productDetails",
-        match: { productAltId },
-      });
+    // if (productId) {
+    //   product = await Product.findOne({ productId }).populate("productDetails");
+    // } else if (!product || productAltId) {
+    //   // Since productDetails is referenced, we find the product by joined productDetails.productAltId
+    //   product = await Product.findOne().populate({
+    //     path: "productDetails",
+    //     match: { productAltId },
+    //   });
 
-      // Mongoose's populate with match returns the document with productDetails null if no match
-      if (!product || !product.productDetails) {
-        product = null;
-      }
-    } */
+    //   // Mongoose's populate with match returns the document with productDetails null if no match
+    //   if (!product || !product.productDetails) {
+    //     product = null;
+    //   }
+    // }
 
     if (!product) {
       return new NextResponse(
@@ -82,7 +118,7 @@ export const GET = async (request: Request, context: { params: any }) => {
       }
     );
   }
-};
+}; */
 
 export const POST = async (request: Request, context: { params: any }) => {
   const productId = context.params.product;
