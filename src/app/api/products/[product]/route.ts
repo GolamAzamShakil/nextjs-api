@@ -5,12 +5,15 @@ import { ProductCategory } from "../../../../../lib/interfaces/IProduct";
 import ProductDetails from "../../../../../lib/models/productDetails";
 import { convertGoogleDriveUrl } from "../../../../../lib/linkConverter";
 import { Product } from "../../../../../lib/models";
+import { mergePublicHeaders } from "../../../../../lib/cors";
 
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { productId: string } }
 ) {
+  const origin = request.headers.get('origin');
+
   try {
     await connectDB();
 
@@ -41,9 +44,9 @@ export async function GET(
 
     return NextResponse.json(product, { 
       status: 200,
-      headers: {
+      headers: mergePublicHeaders(origin, {
         'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=240'
-      }
+      })
     });
   } catch (error) {
     console.error('Error fetching product:', error);

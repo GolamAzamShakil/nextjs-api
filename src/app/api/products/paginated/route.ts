@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "../../../../../lib/db";
 import { Product } from "../../../../../lib/models";
+import { mergePublicHeaders } from "../../../../../lib/cors";
 
 export async function GET(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
   try {
     await connectDB();
 
@@ -55,9 +58,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response, { 
       status: 200,
-      headers: {
+      headers: mergePublicHeaders(origin, {
         'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60'
-      }
+      })
     });
   } catch (error) {
     console.error('Error fetching paginated products:', error);

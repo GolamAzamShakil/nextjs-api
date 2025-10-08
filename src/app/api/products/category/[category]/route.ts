@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "../../../../../../lib/db";
 import { ProductCategory } from "../../../../../../lib/interfaces/IProduct";
 import { Product, ProductDetails } from "../../../../../../lib/models";
+import { mergePublicHeaders } from "../../../../../../lib/cors";
 
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { category: string } }
 ) {
+  const origin = request.headers.get('origin');
+
   try {
     await connectDB();
 
@@ -64,9 +67,9 @@ export async function GET(
 
     return NextResponse.json(filteredProducts, { 
       status: 200,
-      headers: {
+      headers: mergePublicHeaders(origin, {
         'Cache-Control': 'public, s-maxage=90, stale-while-revalidate=180'
-      }
+      })
     });
   } catch (error) {
     console.error('Error fetching products by category:', error);

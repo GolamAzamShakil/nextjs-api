@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+/* import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 function isAllowedOrigin(origin: string | null): boolean {
@@ -47,4 +47,4 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: '/api/:path*',
-};
+}; */

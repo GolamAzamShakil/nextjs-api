@@ -5,10 +5,13 @@ import connectDB from "../../../../lib/db";
 import ProductDetails from "../../../../lib/models/productDetails";
 import { Product } from "../../../../lib/models";
 import { ProductCategory } from "../../../../lib/interfaces/IProduct";
+import { mergePublicHeaders } from "../../../../lib/cors";
 
 //export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
+  const origin = request.headers.get('origin');
+
   try {
     await connectDB();
 
@@ -83,9 +86,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(products, { 
       status: 200,
-      headers: {
+      headers: mergePublicHeaders(origin, {
         'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120'
-      }
+      })
     });
   } catch (error) {
     console.error('Error fetching products:', error);
