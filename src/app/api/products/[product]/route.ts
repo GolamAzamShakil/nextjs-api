@@ -130,7 +130,6 @@ export const POST = async (request: Request, context: { params: any }) => {
     //const category = searchParams.get("category");
     const body = await request.json();
     const { productName, productAltId, productCategory, productImageLink, productAvailability } = body;
-    const convertedLink = convertGoogleDriveUrl(productImageLink);
 
     if (!Object.values(ProductCategory).includes(productCategory)) {
       return new NextResponse(
@@ -166,7 +165,7 @@ export const POST = async (request: Request, context: { params: any }) => {
     //await newCategory.save();
 
     if (!product) {
-      const productDetails = await ProductDetails.create({ productAltId, productCategory, productImageLink: convertedLink, productAvailability });
+      const productDetails = await ProductDetails.create({ productAltId, productCategory, productImageLink, productAvailability });
 
       product = await Product.create({
         productId,
@@ -180,7 +179,7 @@ export const POST = async (request: Request, context: { params: any }) => {
         await ProductDetails.findByIdAndUpdate(product.productDetails._id, {
           productAltId,
           productCategory,
-          productImageLink: convertedLink,
+          productImageLink,
           productAvailability,
         });
       } else {
@@ -188,7 +187,7 @@ export const POST = async (request: Request, context: { params: any }) => {
         await ProductDetails.findByIdAndUpdate(product.productDetails, {
           productAltId,
           productCategory,
-          productImageLink: convertedLink,
+          productImageLink,
           productAvailability,
         });
       }
