@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@types/bcryptjs": "^3.0.0",
-    "argon2": "^0.43.1",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
