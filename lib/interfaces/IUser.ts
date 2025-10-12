@@ -6,5 +6,10 @@ export interface IUser extends Document {
   userEmail: string;
   userPassword: string;
   isMfaEnabled?: boolean;
+  roles?: string[],
+  createdAt: Date,
+  updatedAt: Date
 };
+
+export const allowedRoles = ['guest', 'user', 'moderator', 'admin'];
 

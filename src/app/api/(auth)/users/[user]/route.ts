@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { Types, ObjectId } from "mongoose";
-import connectDB from "../../../../../../lib/db";
+import connectDB from "../../../../../../lib/server/db";
 import User from "../../../../../../lib/models/users";
-import { hashPassword } from "../../../../../../lib/psdHashing";
+import { hashPassword } from "../../../../../../lib/authentication/psdHashing";
 
 //const ObjectId = require("mongoose").Types.ObjectId
 

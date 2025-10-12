@@ -1,4 +1,4 @@
-import mongoose, { model, models, Schema, Types, Document } from "mongoose";
+import mongoose, { Schema, Model } from "mongoose";
 import { IProductDetails, ProductCategory } from "../interfaces/IProduct";
 
 
@@ -28,6 +28,6 @@ const ProductDetailsSchema = new Schema<IProductDetails>(
   }
 );
 
-const ProductDetails = mongoose.models.ProductDetails || mongoose.model<IProductDetails>("ProductDetails", ProductDetailsSchema);
+const ProductDetails: Model<IProductDetails> = mongoose.models.ProductDetails || mongoose.model<IProductDetails>("ProductDetails", ProductDetailsSchema);
 
 export default ProductDetails;

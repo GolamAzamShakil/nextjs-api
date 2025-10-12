@@ -1,57 +1,56 @@
 import { Types } from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "../../../../../lib/db";
+import connectDB from "../../../../../lib/server/db";
 import { ProductCategory } from "../../../../../lib/interfaces/IProduct";
 import ProductDetails from "../../../../../lib/models/productDetails";
-import { convertGoogleDriveUrl } from "../../../../../lib/linkConverter";
+import { convertGoogleDriveUrl } from "../../../../../lib/userUtilities/linkConverter";
 import { Product } from "../../../../../lib/models";
-import { mergePublicHeaders } from "../../../../../lib/cors";
-
+import { mergePublicHeaders } from "../../../../../lib/server/cors";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { productId: string } }
 ) {
-  const origin = request.headers.get('origin');
+  const origin = request.headers.get("origin");
 
   try {
     await connectDB();
 
-    const { productId } = params
+    const { productId } = params;
 
     if (!productId || productId.trim().length === 0) {
       return NextResponse.json(
-        { error: 'Product ID is required' },
+        { error: "Product ID is required" },
         { status: 400 }
       );
     }
 
     const product = await Product.findOne({ productId: productId })
       .populate({
-          path: 'productDetails',
-          select: '-__v'
-        })
-      .select('-__v')
+        path: "productDetails",
+        select: "-__v",
+      })
+      .select("-__v")
       .lean()
       .exec();
 
     if (!product) {
-      return NextResponse.json(
-        { error: 'Product not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    return NextResponse.json(product, { 
+    return NextResponse.json(product, {
       status: 200,
       headers: mergePublicHeaders(origin, {
-        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=240'
-      })
+        "Cache-Control": "public, s-maxage=120, stale-while-revalidate=240",
+      }),
     });
   } catch (error) {
-    console.error('Error fetching product:', error);
+    console.error("Error fetching product:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch product', message: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: "Failed to fetch product",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }
@@ -129,7 +128,13 @@ export const POST = async (request: Request, context: { params: any }) => {
     //const { searchParams } = new URL(request.url);
     //const category = searchParams.get("category");
     const body = await request.json();
-    const { productName, productAltId, productCategory, productImageLink, productAvailability } = body;
+    const {
+      productName,
+      productAltId,
+      productCategory,
+      productImageLink,
+      productAvailability,
+    } = body;
 
     if (!Object.values(ProductCategory).includes(productCategory)) {
       return new NextResponse(
@@ -142,11 +147,17 @@ export const POST = async (request: Request, context: { params: any }) => {
 
     await connectDB();
 
-    let product = await Product.findOne({ productId }).populate("productDetails").exec();
+    let product = await Product.findOne({ productId })
+      .populate("productDetails")
+      .exec();
     if (!product && productAltId) {
-      const productDetails = await ProductDetails.findOne({ productAltId }).exec();
+      const productDetails = await ProductDetails.findOne({
+        productAltId,
+      }).exec();
       if (productDetails) {
-        product = await Product.findOne({ productDetails: productDetails._id }).populate("productDetails").exec();
+        product = await Product.findOne({ productDetails: productDetails._id })
+          .populate("productDetails")
+          .exec();
       }
     }
     /* if (!product) {
@@ -165,7 +176,12 @@ export const POST = async (request: Request, context: { params: any }) => {
     //await newCategory.save();
 
     if (!product) {
-      const productDetails = await ProductDetails.create({ productAltId, productCategory, productImageLink, productAvailability });
+      const productDetails = await ProductDetails.create({
+        productAltId,
+        productCategory,
+        productImageLink,
+        productAvailability,
+      });
 
       product = await Product.create({
         productId,
@@ -195,12 +211,18 @@ export const POST = async (request: Request, context: { params: any }) => {
     }
 
     return new NextResponse(
-      JSON.stringify({ message: "Product is created or updated", product: product }),
+      JSON.stringify({
+        message: "Product is created or updated",
+        product: product,
+      }),
       { status: 200 }
     );
   } catch (error: any) {
-    return new NextResponse("Error occurred during creating or updating product- " + error.message, {
-      status: 500,
-    });
+    return new NextResponse(
+      "Error occurred during creating or updating product- " + error.message,
+      {
+        status: 500,
+      }
+    );
   }
 };

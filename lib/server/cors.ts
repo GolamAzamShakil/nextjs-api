@@ -5,8 +5,15 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5174',
   'https://golam-azam.vercel.app',
-];
+  // process.env.FRONTEND_URL,
+].filter(Boolean);
 
+/* const productionOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+
+const allowedAllOrigins = process.env.NODE_ENV === 'production'
+  ? [...allowedOrigins, ...productionOrigins]
+  : allowedOrigins;
+ */
 function isAllowedOrigin(origin: string | null): boolean {
   return origin !== null && allowedOrigins.includes(origin);
 }
@@ -43,6 +50,18 @@ export function mergePublicHeaders(
     ...additionalHeaders,
   };
 }
+
+export function mergePublicHeadersWithCredentials(
+  origin: string | null,
+  additionalHeaders: Record<string, string> = {}
+) {
+  return {
+    ...getPublicCorsHeaders(origin),
+    'Access-Control-Allow-Credentials': 'true',
+    ...additionalHeaders,
+  };
+}
+
 
 export function mergeAuthHeaders(
   origin: string | null,

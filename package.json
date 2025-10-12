@@ -12,13 +12,17 @@
     "@types/bcryptjs": "^3.0.0",
     "argon2": "^0.43.1",
     "bcryptjs": "^3.0.2",
+    "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "mongoose": "^8.16.5",
+    "nanoid": "^5.1.6",
     "next": "14.2.30",
     "next-cloudinary": "^6.16.0",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
