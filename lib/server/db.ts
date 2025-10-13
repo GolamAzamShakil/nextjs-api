@@ -1,9 +1,10 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/auth_db';
+
+const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+  throw new Error('Please define the MONGODB_URI environment variable in .env file');
 }
 
 interface MongooseCache {
@@ -11,44 +12,77 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
-// Cache the database connection in development to prevent multiple connections
 declare global {
-  var mongoose: MongooseCache | undefined;
+  var mongooseCache: MongooseCache | undefined;
 }
 
-let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+let cached: MongooseCache = global.mongooseCache || { conn: null, promise: null };
 
-if (!global.mongoose) {
-  global.mongoose = cached;
+if (!global.mongooseCache) {
+  global.mongooseCache = cached;
 }
 
 async function connectDB(): Promise<typeof mongoose> {
-  // If already connected, return the cached connection
   if (cached.conn) {
+    console.log('📦 Using cached MongoDB connection');
     return cached.conn;
   }
 
-  // If connection is in progress, wait for it
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      console.log('✅ MongoDB connected successfully');
-      return mongoose;
-    });
+  if (cached.promise) {
+    console.log('⏳ Waiting for existing MongoDB connection...');
+    cached.conn = await cached.promise;
+    return cached.conn;
   }
+
+  const opts = {
+    bufferCommands: true,
+    maxPoolSize: 10, // Maintain up to 10 socket connections
+    serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    ...(process.env.DB_NAME && { dbName: process.env.DB_NAME }),
+  };
+
+  console.log('🔄 Connecting to MongoDB Atlas...');
+  
+  cached.promise = mongoose.connect(MONGODB_URI as string, opts)    //Non-Null assertion- MONGODB_URI!
+    .then((mongooseInstance) => {
+      console.log('✅ MongoDB connected successfully');
+      return mongooseInstance;
+    })
+    .catch((error) => {
+      cached.promise = null;
+      console.error('❌ MongoDB connection error:', error);
+      throw error;
+    });
 
   try {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
-    console.error('❌ MongoDB connection error:', e);
     throw e;
   }
 
   return cached.conn;
 }
+
+
+mongoose.connection.on('connected', () => {
+  console.log('🟢 Mongoose connected to MongoDB Atlas');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('🔴 Mongoose connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('🟡 Mongoose disconnected from MongoDB Atlas');
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  console.log('⚠️ MongoDB connection closed due to app termination');
+  process.exit(0);
+});
 
 export default connectDB;
