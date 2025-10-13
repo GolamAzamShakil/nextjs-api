@@ -79,10 +79,10 @@ mongoose.connection.on('disconnected', () => {
 });
 
 // Graceful shutdown
-process.on('SIGINT', async () => {
-  await mongoose.connection.close();
-  console.log('⚠️ MongoDB connection closed due to app termination');
-  process.exit(0);
-});
+// process.on('SIGINT', async () => {
+//   await mongoose.connection.close();
+//   console.log('⚠️ MongoDB connection closed due to app termination');
+//   process.exit(0);
+// });
 
 export default connectDB;
