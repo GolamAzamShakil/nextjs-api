@@ -73,7 +73,7 @@ export const PUT = requireAuth(async (request: AuthenticatedRequest) => {
     await connectDB();
     const origin = request.headers.get('origin');
 
-    if (!request.user?.roles.includes('admin')) {
+    if (request.user?.roles && !request.user?.roles.includes('admin')) {
       return NextResponse.json(
         { success: false, message: 'Forbidden: Admin access required' },
         { 
