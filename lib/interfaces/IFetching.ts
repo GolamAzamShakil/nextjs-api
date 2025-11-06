@@ -1,9 +1,11 @@
 export interface IUserApiResponse {
   userId: string;
   userName: string;
-  userEmail: string;
+  userEmail: string | null;
   isMfaEnabled?: boolean;
   roles?: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IProductApiResponse<T> {

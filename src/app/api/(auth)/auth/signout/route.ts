@@ -1,42 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AuthResponse } from "../../../../../../lib/interfaces/IAuth";
+import { mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
 
-export async function POST(request: NextRequest): Promise<NextResponse<AuthResponse>> {
-  //const origin = request.headers.get('origin');
+interface SignOutResponse {
+  success: boolean;
+  message: string;
+}
+
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<SignOutResponse>> {
+  const origin = request.headers.get("origin");
 
   try {
-
     const response = NextResponse.json(
       {
         success: true,
-        message: 'Sign out successful',
+        message: "Sign out successful",
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: mergePublicHeadersWithCredentials(origin, {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        }),
+      }
     );
 
-    response.cookies.set('auth_token', '', {
+    response.cookies.set("jwt_auth_token", "", {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      // domain: undefined,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
       maxAge: 0,
-      path: '/',
+      path: "/",
     });
 
     return response;
   } catch (error) {
-    console.error('Sign out error:', error);
+    console.error("Sign out error:", error);
     return NextResponse.json(
       {
         success: false,
-        message: 'Internal server error',
+        message: "Internal server error",
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: mergePublicHeadersWithCredentials(origin),
+      }
     );
   }
 }
 
 
-export async function GET(request: NextRequest): Promise<NextResponse<AuthResponse>> {
+export async function GET(request: NextRequest): Promise<NextResponse<SignOutResponse>> {
   return POST(request);
 }

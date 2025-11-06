@@ -1,27 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "../../../../../../lib/server/db";
-import { AuthenticatedRequest, requireAuth } from "../../../../../../middleware/AuthMiddleware";
+import { AuthenticatedRequest, requireAdmin } from "../../../../../../middleware/AuthMiddleware";
 import { mergeAuthHeaders, mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
 import { User } from "../../../../../../lib/models";
 import { IUser } from "../../../../../../lib/interfaces/IUser";
 
 
 // All users with pagination
-export const GET = requireAuth(async (request: AuthenticatedRequest) => {
+export const GET = requireAdmin(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const origin = request.headers.get('origin');
-
-    // If requester is admin or not
-    if (!request.user?.roles.includes('admin')) {
-      return NextResponse.json(
-        { success: false, message: 'Forbidden: Admin access required' },
-        { 
-          status: 403,
-          headers: mergeAuthHeaders(origin),
-        }
-      );
-    }
+    const authMode = request.authMode;
 
     const { searchParams } = request.nextUrl;
     const page = parseInt(searchParams.get('page') || '1');

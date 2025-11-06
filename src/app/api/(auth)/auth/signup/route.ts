@@ -88,10 +88,10 @@ export async function POST(
       }
     );
 
-    response.cookies.set("auth_token", token, {
+    response.cookies.set("jwt_auth_token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: process.env.NODE_ENV === "production",
       // domain: undefined,
       maxAge: 60 * 60 * 24 * 7,
       path: "/",

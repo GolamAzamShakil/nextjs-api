@@ -8,8 +8,51 @@ import { IUser } from "../../../../../../lib/interfaces/IUser";
 import { mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
 import connectDB from "../../../../../../lib/server/db";
 
-// GET protected route
+
 export const GET = requireAuth(async (request: AuthenticatedRequest) => {
+  await connectDB();
+
+    const user = await User.findOne({ userId: request.user?.userId })
+      .select("-userPassword")
+      .lean<Omit<IUser, "userPassword">>();
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "User not found",
+        },
+        //{ status: 404, headers: mergePublicHeadersWithCredentials(origin) }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Profile retrieved successfully",
+        user: {
+          userId: user.userId,
+          userName: user.userName,
+          userEmail: user.userEmail,
+          isMfaEnabled: user.isMfaEnabled,
+          roles: user.roles,
+        },
+      },
+      // {
+      //   status: 200,
+      //   headers: mergePublicHeadersWithCredentials(origin, {
+      //     "Cache-Control": "private, no-cache, must-revalidate",
+      //   }),
+      // }
+    );
+}, {
+  requiredRoles: ["user"],
+  customHeaders: {
+    "Cache-Control": "private, no-cache, must-revalidate",
+  }
+});
+
+/* export const = requireAuth(async (request: AuthenticatedRequest) => {
   try {
     const origin = request.headers.get('origin');
     await connectDB();
@@ -58,12 +101,9 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
       { status: 500, headers: mergePublicHeadersWithCredentials(origin) }
     );
   }
-});
+}); */
 
-// POST protected route
 export const POST = requireAuth(async (request: AuthenticatedRequest) => {
-  try {
-    const origin = request.headers.get('origin');
 
     const body = await request.json();
     const { userName } = body;
@@ -104,30 +144,11 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
           roles: updatedUser.roles,
         },
       },
-      {
-        status: 200,
-        headers: mergePublicHeadersWithCredentials(origin, {
-          "Cache-Control": "private, no-cache, must-revalidate",
-        }),
-      }
     );
-  } catch (error) {
-    const origin = request.headers.get('origin');
-    console.error("Profile update error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Internal server error",
-      },
-      { status: 500, headers: mergePublicHeadersWithCredentials(origin) }
-    );
+}, {
+  requiredRoles: ["user"],
+  customHeaders: {
+    "Cache-Control": "private, no-cache, must-revalidate",
   }
 });
 
-export async function OPTIONS(request: NextRequest) {
-  const origin = request.headers.get("origin");
-  return new NextResponse(null, {
-    status: 204,
-    headers: mergePublicHeadersWithCredentials(origin),
-  });
-}

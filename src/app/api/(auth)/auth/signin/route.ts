@@ -8,7 +8,9 @@ import connectDB from "../../../../../../lib/server/db";
 import { User } from "../../../../../../lib/models";
 import { JWTUtils } from "../../../../../../lib/authentication/jwtUtils";
 import { IUser } from "../../../../../../lib/interfaces/IUser";
-import { mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
+import { mergeAuthHeaders, mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
+
+
 
 export async function POST(
   request: NextRequest
@@ -18,7 +20,7 @@ export async function POST(
     await connectDB();
 
     const body: SignInRequest = await request.json();
-    const { userEmail, userPassword } = body;
+    const { userEmail, userPassword, authMode = "cookie" } = body;
 
     if (!userEmail || !userPassword) {
       return NextResponse.json(
@@ -67,40 +69,73 @@ export async function POST(
       );
     }
 
-    // Generate JWT token
-    const token = JWTUtils.generateToken({
-      userId: user.userId,
-      userEmail: user.userEmail,
-      roles: user.roles ?? ["user"],
-    });
-
     const sanitizedUser = PsdUtils.sanitizeUser(user);
 
-    const response = NextResponse.json(
-      {
-        success: true,
-        message: "Sign in successful",
-        user: sanitizedUser,
-        token,
-      },
-      {
-        status: 200,
-        headers: mergePublicHeadersWithCredentials(origin, {
-          "Cache-Control": "no-store, no-cache, must-revalidate",
-        }),
-      }
-    );
+    if (authMode === "bearer") {
+      const accessToken = JWTUtils.generateAccessToken(
+        {
+          userId: user.userId,
+          userEmail: user.userEmail,
+          roles: user.roles ?? ["user"],
+        },
+      );
 
-    response.cookies.set("auth_token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      // domain: undefined,
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/",
-    });
+      const refreshToken = JWTUtils.generateRefreshToken(
+        {
+          userId: user.userId,
+          userEmail: user.userEmail,
+        },
+      );
 
-    return response;
+      // Tokens in body
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Sign in successful",
+          user: sanitizedUser,
+          accessToken,
+          refreshToken,
+        },
+        {
+          status: 200,
+          headers: mergeAuthHeaders(origin, {
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+          }),
+        }
+      );
+    } else {
+      // Default- Cookie mode
+      const token = JWTUtils.generateToken({
+        userId: user.userId,
+        userEmail: user.userEmail,
+        roles: user.roles ?? ["user"],
+      });
+
+      const response = NextResponse.json(
+        {
+          success: true,
+          message: "Sign in successful",
+          user: sanitizedUser,
+        },
+        {
+          status: 200,
+          headers: mergePublicHeadersWithCredentials(origin, {
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+          }),
+        }
+      );
+
+      // HTTP-only cookie
+      response.cookies.set("jwt_auth_token", token, {
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 7,
+        path: "/",
+      });
+
+      return response;
+    }
   } catch (error) {
     const origin = request.headers.get('origin');
     console.error("Sign in error:", error);

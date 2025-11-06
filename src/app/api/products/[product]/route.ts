@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "../../../../../lib/server/db";
 import { ProductCategory } from "../../../../../lib/interfaces/IProduct";
 import ProductDetails from "../../../../../lib/models/productDetails";
-import { convertGoogleDriveUrl } from "../../../../../lib/userUtilities/linkConverter";
 import { Product } from "../../../../../lib/models";
 import { mergePublicHeaders } from "../../../../../lib/server/cors";
 

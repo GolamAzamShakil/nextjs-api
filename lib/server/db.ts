@@ -85,4 +85,9 @@ mongoose.connection.on('disconnected', () => {
 //   process.exit(0);
 // });
 
+export async function getMongodbClient() {
+  const conn = await connectDB();
+  return conn.connection.getClient().db(process.env.DB_NAME);
+}
+
 export default connectDB;
