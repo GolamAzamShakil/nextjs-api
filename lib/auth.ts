@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { anonymous } from "better-auth/plugins";
-import { MongoClient } from "mongodb";
+import { Db, MongoClient } from "mongodb";
+import clientPromise from "./server/dbOptional";
 
 const BASE_URL = process.env.BASE_URL;
 // const uri = "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/<databaseName>?retryWrites=true&w=majority";
@@ -13,10 +14,27 @@ if (!MONGODB_URI_WITH_DB_NAME) {
 
 const dbClient = new MongoClient(MONGODB_URI_WITH_DB_NAME!);
 await dbClient.connect();
-const dbMongo = dbClient.db(DB_NAME)
+const dbMongo = dbClient.db(DB_NAME);
+
+const options = {};
+
+let client: MongoClient;
+let db: Db;
+
+async function initDatabase() {
+  if (!client) {
+    client = new MongoClient(MONGODB_URI_WITH_DB_NAME!, options);
+    await client.connect();
+    db = client.db(); // Use default database or specify name: client.db('your-db-name')
+  }
+  return db;
+}
+const final = await initDatabase();
 
 export const auth = betterAuth({
-  database: mongodbAdapter(dbMongo),
+  //database: mongodbAdapter(dbMongo),
+  secret: process.env.BETTER_AUTH_SECRET!,
+  database: mongodbAdapter(final),
   
   basePath: "/api/better-auth",
 
