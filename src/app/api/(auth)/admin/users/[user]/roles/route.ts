@@ -6,18 +6,29 @@ import { User } from "../../../../../../../../lib/models";
 import { allowedRoles, IUser } from "../../../../../../../../lib/interfaces/IUser";
 
 
-// User's current roles
+// User's [user] current roles
 export const GET = requireAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const origin = request.headers.get('origin');
+    const currentUser = request.user!;
+    const currentUserId = currentUser.userId;
+    const currentUserRoles = currentUser.roles;
 
-    // If requester is admin or not
-    if (!request.user?.roles.includes('admin')) {
+    if (
+      !currentUserRoles ||
+      currentUserRoles.length < 1 ||
+      !currentUserRoles.includes("admin")
+    ) {
+      const message =
+        !currentUserRoles || currentUserRoles.length < 1
+          ? "Unauthorized: User roles required"
+          : "Forbidden: Admin access required";
+
       return NextResponse.json(
-        { success: false, message: 'Forbidden: Admin access required' },
-        { 
-          status: 403,
+        { success: false, message },
+        {
+          status: !currentUserRoles || currentUserRoles.length < 1 ? 401 : 403,
           headers: mergePublicHeadersWithCredentials(origin),
         }
       );
@@ -65,19 +76,35 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
       }
     );
   }
-});
+}, /* {
+  customHeaders: {
+    "Cache-Control": "no-store, no-cache, must-revalidate"
+  }
+} */);
 
-// Update user's roles
+// Update user's [user] roles
 export const PUT = requireAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const origin = request.headers.get('origin');
+    const currentUser = request.user!;
+    const currentUserId = currentUser.userId;
+    const currentUserRoles = currentUser.roles;
 
-    if (request.user?.roles && !request.user?.roles.includes('admin')) {
+    if (
+      !currentUserRoles ||
+      currentUserRoles.length < 1 ||
+      !currentUserRoles.includes("admin")
+    ) {
+      const message =
+        !currentUserRoles || currentUserRoles.length < 1
+          ? "Unauthorized: User roles required"
+          : "Forbidden: Admin access required";
+
       return NextResponse.json(
-        { success: false, message: 'Forbidden: Admin access required' },
-        { 
-          status: 403,
+        { success: false, message },
+        {
+          status: !currentUserRoles || currentUserRoles.length < 1 ? 401 : 403,
           headers: mergePublicHeadersWithCredentials(origin),
         }
       );
@@ -86,8 +113,8 @@ export const PUT = requireAuth(async (request: AuthenticatedRequest) => {
     const userId = request.nextUrl.pathname.split('/')[4];
     const { roles } = await request.json();
 
-    // Prevent self-demotion (admin removing their own admin role)
-    if (userId === request.user.userId) {
+    // Prevent self-demotion (admin removing their own admin roles)
+    if (userId === currentUserId && roles.includes('admin')) {
       return NextResponse.json(
         { 
           success: false, 
@@ -111,16 +138,15 @@ export const PUT = requireAuth(async (request: AuthenticatedRequest) => {
       );
     }
 
-    //const allowedRoles = ['user', 'admin', 'moderator'];
-    const validatedRoles = roles.filter(role => 
-      typeof role === 'string' && allowedRoles.includes(role)
+    const validatedRoles = roles.filter(roles => 
+      typeof roles === 'string' && allowedRoles.includes(roles)
     );
 
     if (validatedRoles.length === 0) {
       return NextResponse.json(
         { 
           success: false, 
-          message: `At least one valid role required. Allowed: ${allowedRoles.join(', ')}` 
+          message: `At least one valid roles required. Allowed: ${allowedRoles.join(', ')}` 
         },
         { 
           status: 400,
@@ -187,22 +213,34 @@ export const DELETE = requireAuth(async (request: AuthenticatedRequest) => {
   try {
     await connectDB();
     const origin = request.headers.get('origin');
+    const currentUser = request.user!;
+    const currentUserId = currentUser.userId;
+    const currentUserRoles = currentUser.roles;
 
-    if (!request.user?.roles.includes('admin')) {
+    if (
+      !currentUserRoles ||
+      currentUserRoles.length < 1 ||
+      !currentUserRoles.includes("admin")
+    ) {
+      const message =
+        !currentUserRoles || currentUserRoles.length < 1
+          ? "Unauthorized: User roles required"
+          : "Forbidden: Admin access required";
+
       return NextResponse.json(
-        { success: false, message: 'Forbidden: Admin access required' },
-        { 
-          status: 403,
+        { success: false, message },
+        {
+          status: !currentUserRoles || currentUserRoles.length < 1 ? 401 : 403,
           headers: mergePublicHeadersWithCredentials(origin),
         }
       );
     }
 
     const userId = request.nextUrl.pathname.split('/')[4];
-    const { role } = await request.json();
+    const { roles } = await request.json();
 
 
-    if (userId === request.user.userId && role === 'admin') {
+    if (userId === currentUserId && roles.includes('admin')) {
       return NextResponse.json(
         { 
           success: false, 
@@ -226,10 +264,10 @@ export const DELETE = requireAuth(async (request: AuthenticatedRequest) => {
       );
     }
 
-    // Removing role from array
-    const updatedRoles = (user.roles ?? []).filter(r => r !== role);
+    // Removing roles from array
+    const updatedRoles = (user.roles ?? []).filter(r => r !== roles);
 
-    // Ensuring at least 'user' role remains
+    // Ensuring at least 'user' roles remains
     if (updatedRoles.length === 0) {
       updatedRoles.push('user');
     }
@@ -246,7 +284,7 @@ export const DELETE = requireAuth(async (request: AuthenticatedRequest) => {
     return NextResponse.json(
       {
         success: true,
-        message: `Role '${role}' removed successfully`,
+        message: `Role '${roles}' removed successfully`,
         user: {
           userId: updatedUser!.userId,
           userName: updatedUser!.userName,
@@ -260,7 +298,7 @@ export const DELETE = requireAuth(async (request: AuthenticatedRequest) => {
       }
     );
   } catch (error) {
-    console.error('Remove role error:', error);
+    console.error('Remove roles error:', error);
     const origin = request.headers.get('origin');
     return NextResponse.json(
       { success: false, message: 'Internal server error' },

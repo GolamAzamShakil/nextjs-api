@@ -154,6 +154,30 @@ export async function authMiddleware(
       };
     }
 
+    if (!decoded.userId || decoded.userId.trim() === "") {
+      const message = "Invalid token: Missing user identifier";
+
+      if (onUnauthorized) {
+        return {
+          authorized: false,
+          response: onUnauthorized(message, origin),
+        };
+      }
+
+      const baseHeaders = authMode === "bearer"
+        ? mergeAuthHeaders(origin)
+        : mergePublicHeadersWithCredentials(origin);
+      const headers = { ...baseHeaders, ...customHeaders };
+
+      return {
+        authorized: false,
+        response: NextResponse.json(
+          { success: false, message },
+          { status: 401, headers }
+        ),
+      };
+    }
+
     if (requiredRoles && requiredRoles.length > 0) {
       const userRoles = decoded.roles || [];
       const hasRequiredRole = requiredRoles.some((role) =>
