@@ -5,34 +5,53 @@ import {
 } from "../../../../../../lib/interfaces/IAuth";
 import { PsdUtils } from "../../../../../../lib/authentication/psdUtils";
 import { JWTUtils } from "../../../../../../lib/authentication/jwtUtils";
-import connectDB from "../../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../../lib/server/db";
 import { User } from "../../../../../../lib/models";
 import { IUser } from "../../../../../../lib/interfaces/IUser";
 import { mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
 import { GenerateUserId } from "../../../../../../lib/userUtilities/generateUserId";
-import { validateSignUpInput, verifySignupInput } from "../../../../../../lib/validation/validateVerifySignupData";
+import {
+  validateSignUpInput,
+  verifySignupInput,
+} from "../../../../../../lib/validation/validateVerifySignupData";
 
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<AuthResponse>> {
   try {
-    const origin = request.headers.get('origin');
-    await connectDB();
+    const origin = request.headers.get("origin");
+    await getMongooseConnection();
 
     const body = await request.json();
-    const { validated, errors: validationErrors, isValid: validatable } = validateSignUpInput(body);
-    const { verified, errors: verificationErrors, isVerified: verifiable  } = verifySignupInput(body);
+    const {
+      validated,
+      errors: validationErrors,
+      isValid: validatable,
+    } = validateSignUpInput(body);
+    const {
+      verified,
+      errors: verificationErrors,
+      isVerified: verifiable,
+    } = verifySignupInput(body);
 
     if (!validatable) {
       return NextResponse.json(
-        { success: false, message: "Validation failed", error: validationErrors },
+        {
+          success: false,
+          message: "Validation failed",
+          error: validationErrors,
+        },
         { status: 400 }
       );
     }
 
     if (!verifiable) {
       return NextResponse.json(
-        { success: false, message: "Verification failed", error: verificationErrors },
+        {
+          success: false,
+          message: "Verification failed",
+          error: verificationErrors,
+        },
         { status: 400 }
       );
     }
@@ -54,11 +73,11 @@ export async function POST(
     const hashedPassword = await PsdUtils.hashPassword(verified.userPassword);
 
     const newUser = await User.create({
-      userId: GenerateUserId.nanoidWrapper('user'),
+      userId: GenerateUserId.nanoidWrapper("user"),
       userName: verified.userName,
       userEmail: verified.userEmail,
       userPassword: hashedPassword,
-      isMfaEnabled: verified.isMfaEnabled,  // Boolean(isMfaEnabled)
+      isMfaEnabled: verified.isMfaEnabled, // Boolean(isMfaEnabled)
       roles: verified.roles,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -99,7 +118,7 @@ export async function POST(
 
     return response;
   } catch (error: any) {
-    const origin = request.headers.get('origin');
+    const origin = request.headers.get("origin");
     console.error("Sign up error:", error);
 
     // MongoDB duplicate key error

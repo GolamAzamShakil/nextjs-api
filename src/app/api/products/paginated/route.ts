@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../lib/server/db";
 import { Product } from "../../../../../lib/models";
 import { mergePublicHeaders } from "../../../../../lib/server/cors";
 
@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const origin = request.headers.get("origin");
 
   try {
-    await connectDB();
+    await getMongooseConnection();
 
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get("page") || "1", 10);

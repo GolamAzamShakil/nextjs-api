@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Types, ObjectId } from "mongoose";
-import connectDB from "../../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../../lib/server/db";
 import User from "../../../../../../lib/models/users";
 import { hashPassword } from "../../../../../../lib/authentication/psdHashing";
 
@@ -10,7 +10,7 @@ export const GET = async (request: Request, context: { params: any }) => {
   const userId = context.params.user;
 
   try {
-    await connectDB();
+    await getMongooseConnection();
 
     let userFind = await User.findOne({ userId: userId }, "-userPassword");
 
@@ -53,7 +53,7 @@ export const POST = async (request: Request, context: { params: any }) => {
         { status: 400 }
       );
     }
-    await connectDB();
+    await getMongooseConnection();
 
     const hashedPassword = await hashPassword(userPassword);
 
@@ -90,7 +90,7 @@ export const PATCH = async (request: Request, context: { params: any }) => {
     const body = await request.json();
     const { newUserName, isMfaEnabled } = body;
 
-    await connectDB();
+    await getMongooseConnection();
 
     if (!newUserName) {
       return new NextResponse(
@@ -165,7 +165,7 @@ export const DELETE = async (request: Request, context: { params: any }) => {
           );
         } */
 
-    await connectDB();
+    await getMongooseConnection();
 
     const UPipeline = [
       { $match: { userId: userId } },

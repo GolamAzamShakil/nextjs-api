@@ -3,38 +3,14 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { anonymous } from "better-auth/plugins";
 import { Db, MongoClient } from "mongodb";
 import clientPromise from "./server/dbOptional";
+import { getMongoNativeDb } from "./server/db";
 
 const BASE_URL = process.env.BASE_URL;
 // const uri = "mongodb+srv://<db_username>:<db_password>@<clusterName>.mongodb.net/<databaseName>?retryWrites=true&w=majority";
-const MONGODB_URI_WITH_DB_NAME = process.env.MONGODB_URI_WITH_DB_NAME;
-const DB_NAME = process.env.DB_NAME;
-if (!MONGODB_URI_WITH_DB_NAME) {
-  throw new Error('Please define the MONGODB_URI environment variable in .env file');
-}
-
-const dbClient = new MongoClient(MONGODB_URI_WITH_DB_NAME!);
-await dbClient.connect();
-const dbMongo = dbClient.db(DB_NAME);
-
-const options = {};
-
-let client: MongoClient;
-let db: Db;
-
-async function initDatabase() {
-  if (!client) {
-    client = new MongoClient(MONGODB_URI_WITH_DB_NAME!, options);
-    await client.connect();
-    db = client.db(); // Use default database or specify name: client.db('your-db-name')
-  }
-  return db;
-}
-const final = await initDatabase();
 
 export const auth = betterAuth({
-  //database: mongodbAdapter(dbMongo),
   secret: process.env.BETTER_AUTH_SECRET!,
-  database: mongodbAdapter(final),
+  database: mongodbAdapter(await getMongoNativeDb()),
   
   basePath: "/api/better-auth",
 

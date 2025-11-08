@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../lib/server/db";
 import { ProductCategory } from "../../../../../lib/interfaces/IProduct";
 import ProductDetails from "../../../../../lib/models/productDetails";
 import { Product } from "../../../../../lib/models";
@@ -13,7 +13,7 @@ export async function GET(
   const origin = request.headers.get("origin");
 
   try {
-    await connectDB();
+    await getMongooseConnection();
 
     const { productId } = params;
 
@@ -144,7 +144,7 @@ export const POST = async (request: Request, context: { params: any }) => {
       );
     }
 
-    await connectDB();
+    await getMongooseConnection();
 
     let product = await Product.findOne({ productId })
       .populate("productDetails")

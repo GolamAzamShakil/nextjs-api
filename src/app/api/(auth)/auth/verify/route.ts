@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AuthResponse, SessionRequest, SessionResponse } from "../../../../../../lib/interfaces/IAuth";
+import {
+  AuthResponse,
+  SessionRequest,
+  SessionResponse,
+} from "../../../../../../lib/interfaces/IAuth";
 import { JWTUtils } from "../../../../../../lib/authentication/jwtUtils";
-import { mergeAuthHeaders, mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
+import {
+  mergeAuthHeaders,
+  mergePublicHeadersWithCredentials,
+} from "../../../../../../lib/server/cors";
 import { User } from "../../../../../../lib/models";
 import { IUser } from "../../../../../../lib/interfaces/IUser";
-import connectDB from "../../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../../lib/server/db";
 import { PsdUtils } from "../../../../../../lib/authentication/psdUtils";
-
 
 export async function GET(
   request: NextRequest
@@ -14,7 +20,7 @@ export async function GET(
   const origin = request.headers.get("origin");
 
   try {
-    await connectDB();
+    await getMongooseConnection();
 
     let token: string | undefined;
     let authMode: "bearer" | "cookie" | undefined;
@@ -36,7 +42,7 @@ export async function GET(
           success: false,
           message: "No authentication token found",
         },
-        { 
+        {
           status: 401,
           headers: mergePublicHeadersWithCredentials(origin),
         }
@@ -51,11 +57,12 @@ export async function GET(
           success: false,
           message: "Invalid or expired token",
         },
-        { 
+        {
           status: 401,
-          headers: authMode === "bearer" 
-            ? mergeAuthHeaders(origin)
-            : mergePublicHeadersWithCredentials(origin),
+          headers:
+            authMode === "bearer"
+              ? mergeAuthHeaders(origin)
+              : mergePublicHeadersWithCredentials(origin),
         }
       );
 
@@ -72,9 +79,10 @@ export async function GET(
       return response;
     }
 
-    const isGuest = decoded.roles?.includes("guest") || 
-                    decoded.userEmail?.startsWith("Guest_") ||
-                    decoded.userId.startsWith("guest_");
+    const isGuest =
+      decoded.roles?.includes("guest") ||
+      decoded.userEmail?.startsWith("Guest_") ||
+      decoded.userId.startsWith("guest_");
 
     if (isGuest) {
       const guestUser = {
@@ -84,7 +92,7 @@ export async function GET(
         roles: decoded.roles || ["guest"],
       };
 
-      const expiresAt = decoded.exp 
+      const expiresAt = decoded.exp
         ? new Date(decoded.exp * 1000).toISOString()
         : new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString();
 
@@ -108,8 +116,8 @@ export async function GET(
       );
     }
 
-    const user = await User.findOne({ 
-      userId: decoded.userId 
+    const user = await User.findOne({
+      userId: decoded.userId,
     }).lean<IUser>();
 
     if (!user) {
@@ -118,11 +126,12 @@ export async function GET(
           success: false,
           message: "User not found",
         },
-        { 
+        {
           status: 401,
-          headers: authMode === "bearer"
-            ? mergeAuthHeaders(origin)
-            : mergePublicHeadersWithCredentials(origin),
+          headers:
+            authMode === "bearer"
+              ? mergeAuthHeaders(origin)
+              : mergePublicHeadersWithCredentials(origin),
         }
       );
 
@@ -166,10 +175,9 @@ export async function GET(
       return response;
     } */
 
+    const sanitizedUser = PsdUtils.sanitizeUser(user);
 
-    const sanitizedUser = PsdUtils.sanitizeUser(user)
-
-    const expiresAt = decoded.exp 
+    const expiresAt = decoded.exp
       ? new Date(decoded.exp * 1000).toISOString()
       : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -188,13 +196,14 @@ export async function GET(
       },
       {
         status: 200,
-        headers: authMode === "bearer"
-          ? mergeAuthHeaders(origin, {
-              "Cache-Control": "private, no-cache, must-revalidate",
-            })
-          : mergePublicHeadersWithCredentials(origin, {
-              "Cache-Control": "private, no-cache, must-revalidate",
-            }),
+        headers:
+          authMode === "bearer"
+            ? mergeAuthHeaders(origin, {
+                "Cache-Control": "private, no-cache, must-revalidate",
+              })
+            : mergePublicHeadersWithCredentials(origin, {
+                "Cache-Control": "private, no-cache, must-revalidate",
+              }),
       }
     );
   } catch (error) {
@@ -204,14 +213,13 @@ export async function GET(
         success: false,
         message: "Internal server error",
       },
-      { 
+      {
         status: 500,
         headers: mergePublicHeadersWithCredentials(origin),
       }
     );
   }
 }
-
 
 export async function POST(
   request: NextRequest
@@ -228,7 +236,7 @@ export async function POST(
           success: false,
           message: "Invalid authMode. Must be 'cookie' or 'bearer'",
         },
-        { 
+        {
           status: 400,
           headers: mergePublicHeadersWithCredentials(origin),
         }
@@ -243,7 +251,7 @@ export async function POST(
             success: false,
             message: "No bearer token provided",
           },
-          { 
+          {
             status: 401,
             headers: mergeAuthHeaders(origin),
           }
@@ -259,7 +267,7 @@ export async function POST(
             success: false,
             message: "No session cookie found",
           },
-          { 
+          {
             status: 401,
             headers: mergePublicHeadersWithCredentials(origin),
           }
@@ -277,7 +285,7 @@ export async function POST(
         success: false,
         message: "Internal server error",
       },
-      { 
+      {
         status: 500,
         headers: mergePublicHeadersWithCredentials(origin),
       }

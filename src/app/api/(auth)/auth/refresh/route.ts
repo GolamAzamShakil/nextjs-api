@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "../../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../../lib/server/db";
 import { mergeAuthHeaders } from "../../../../../../lib/server/cors";
 import { JWTUtils } from "../../../../../../lib/authentication/jwtUtils";
 import { User } from "../../../../../../lib/models";
 import { IUser } from "../../../../../../lib/interfaces/IUser";
-
 
 interface RefreshRequest {
   refreshToken: string;
@@ -23,7 +22,7 @@ export async function POST(
   const origin = request.headers.get("origin");
 
   try {
-    await connectDB();
+    await getMongooseConnection();
 
     const body: RefreshRequest = await request.json();
     const { refreshToken } = body;
@@ -34,7 +33,7 @@ export async function POST(
           success: false,
           message: "Refresh token is required",
         },
-        { 
+        {
           status: 400,
           headers: mergeAuthHeaders(origin),
         }
@@ -49,7 +48,7 @@ export async function POST(
           success: false,
           message: "Invalid or expired refresh token",
         },
-        { 
+        {
           status: 401,
           headers: mergeAuthHeaders(origin),
         }
@@ -62,15 +61,15 @@ export async function POST(
           success: false,
           message: "Invalid token type. Refresh token required",
         },
-        { 
+        {
           status: 401,
           headers: mergeAuthHeaders(origin),
         }
       );
     }
 
-    const user = await User.findOne({ 
-      userId: decoded.userId 
+    const user = await User.findOne({
+      userId: decoded.userId,
     }).lean<IUser>();
 
     if (!user) {
@@ -79,7 +78,7 @@ export async function POST(
           success: false,
           message: "User not found",
         },
-        { 
+        {
           status: 401,
           headers: mergeAuthHeaders(origin),
         }
@@ -130,7 +129,7 @@ export async function POST(
         success: false,
         message: "Internal server error",
       },
-      { 
+      {
         status: 500,
         headers: mergeAuthHeaders(origin),
       }

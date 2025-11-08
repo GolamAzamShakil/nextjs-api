@@ -4,20 +4,21 @@ import {
   SignInRequest,
 } from "../../../../../../lib/interfaces/IAuth";
 import { PsdUtils } from "../../../../../../lib/authentication/psdUtils";
-import connectDB from "../../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../../lib/server/db";
 import { User } from "../../../../../../lib/models";
 import { JWTUtils } from "../../../../../../lib/authentication/jwtUtils";
 import { IUser } from "../../../../../../lib/interfaces/IUser";
-import { mergeAuthHeaders, mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
-
-
+import {
+  mergeAuthHeaders,
+  mergePublicHeadersWithCredentials,
+} from "../../../../../../lib/server/cors";
 
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<AuthResponse>> {
   try {
-    const origin = request.headers.get('origin');
-    await connectDB();
+    const origin = request.headers.get("origin");
+    await getMongooseConnection();
 
     const body: SignInRequest = await request.json();
     const { userEmail, userPassword, authMode = "cookie" } = body;
@@ -72,20 +73,16 @@ export async function POST(
     const sanitizedUser = PsdUtils.sanitizeUser(user);
 
     if (authMode === "bearer") {
-      const accessToken = JWTUtils.generateAccessToken(
-        {
-          userId: user.userId,
-          userEmail: user.userEmail,
-          roles: user.roles ?? ["user"],
-        },
-      );
+      const accessToken = JWTUtils.generateAccessToken({
+        userId: user.userId,
+        userEmail: user.userEmail,
+        roles: user.roles ?? ["user"],
+      });
 
-      const refreshToken = JWTUtils.generateRefreshToken(
-        {
-          userId: user.userId,
-          userEmail: user.userEmail,
-        },
-      );
+      const refreshToken = JWTUtils.generateRefreshToken({
+        userId: user.userId,
+        userEmail: user.userEmail,
+      });
 
       // Tokens in body
       return NextResponse.json(
@@ -137,7 +134,7 @@ export async function POST(
       return response;
     }
   } catch (error) {
-    const origin = request.headers.get('origin');
+    const origin = request.headers.get("origin");
     console.error("Sign in error:", error);
     return NextResponse.json(
       {

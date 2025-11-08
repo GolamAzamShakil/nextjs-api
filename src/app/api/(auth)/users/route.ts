@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import connectDB from "../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../lib/server/db";
 import User from "../../../../../lib/models/users";
 import { Types } from "mongoose";
 import { hashPassword } from "../../../../../lib/authentication/psdHashing";
@@ -8,7 +8,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 
 export const GET = async () => {
   try {
-    await connectDB();
+    await getMongooseConnection();
 
     const users = await User.find({}, "-userPassword");
 
@@ -38,7 +38,7 @@ export const POST = async (request: Request) => {
         { status: 400 }
       );
     }
-    await connectDB();
+    await getMongooseConnection();
 
     const hashedPassword = await hashPassword(userPassword);
 
@@ -67,7 +67,7 @@ export const PATCH = async (request: Request) => {
     const body = await request.json();
     const { userId, newUserName } = body;
 
-    await connectDB();
+    await getMongooseConnection();
 
     if (!userId || !newUserName) {
       return new NextResponse(
@@ -125,7 +125,7 @@ export const DELETE = async (request: Request) => {
       });
     }
 
-    await connectDB();
+    await getMongooseConnection();
 
     const deleteUser = await User.findByIdAndDelete(new Types.ObjectId(userId));
 

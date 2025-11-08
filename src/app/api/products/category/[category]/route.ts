@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "../../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../../lib/server/db";
 import { ProductCategory } from "../../../../../../lib/interfaces/IProduct";
 import { Product, ProductDetails } from "../../../../../../lib/models";
 import { mergePublicHeaders } from "../../../../../../lib/server/cors";
@@ -11,7 +11,7 @@ export async function GET(
   const origin = request.headers.get("origin");
 
   try {
-    await connectDB();
+    await getMongooseConnection();
 
     const { category } = params;
 

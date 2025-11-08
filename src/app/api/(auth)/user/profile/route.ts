@@ -6,11 +6,11 @@ import {
 import { User } from "../../../../../../lib/models";
 import { IUser } from "../../../../../../lib/interfaces/IUser";
 import { mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
-import connectDB from "../../../../../../lib/server/db";
+import getMongooseConnection from "../../../../../../lib/server/db";
 
-
-export const GET = requireAuth(async (request: AuthenticatedRequest) => {
-  await connectDB();
+export const GET = requireAuth(
+  async (request: AuthenticatedRequest) => {
+    await getMongooseConnection();
 
     const user = await User.findOne({ userId: request.user?.userId })
       .select("-userPassword")
@@ -21,7 +21,7 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
         {
           success: false,
           message: "User not found",
-        },
+        }
         //{ status: 404, headers: mergePublicHeadersWithCredentials(origin) }
       );
     }
@@ -37,7 +37,7 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
           isMfaEnabled: user.isMfaEnabled,
           roles: user.roles,
         },
-      },
+      }
       // {
       //   status: 200,
       //   headers: mergePublicHeadersWithCredentials(origin, {
@@ -45,12 +45,14 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
       //   }),
       // }
     );
-}, {
-  requiredRoles: ["user"],
-  customHeaders: {
-    "Cache-Control": "private, no-cache, must-revalidate",
+  },
+  {
+    requiredRoles: ["user"],
+    customHeaders: {
+      "Cache-Control": "private, no-cache, must-revalidate",
+    },
   }
-});
+);
 
 /* export const = requireAuth(async (request: AuthenticatedRequest) => {
   try {
@@ -103,11 +105,11 @@ export const GET = requireAuth(async (request: AuthenticatedRequest) => {
   }
 }); */
 
-export const POST = requireAuth(async (request: AuthenticatedRequest) => {
-
+export const POST = requireAuth(
+  async (request: AuthenticatedRequest) => {
     const body = await request.json();
     const { userName } = body;
-    await connectDB();
+    await getMongooseConnection();
 
     const updatedUser = await User.findOneAndUpdate(
       { userId: request.user?.userId },
@@ -132,23 +134,22 @@ export const POST = requireAuth(async (request: AuthenticatedRequest) => {
       );
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Profile updated successfully",
-        user: {
-          userId: updatedUser.userId,
-          userName: updatedUser.userName,
-          userEmail: updatedUser.userEmail,
-          isMfaEnabled: updatedUser.isMfaEnabled,
-          roles: updatedUser.roles,
-        },
+    return NextResponse.json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        userId: updatedUser.userId,
+        userName: updatedUser.userName,
+        userEmail: updatedUser.userEmail,
+        isMfaEnabled: updatedUser.isMfaEnabled,
+        roles: updatedUser.roles,
       },
-    );
-}, {
-  requiredRoles: ["user"],
-  customHeaders: {
-    "Cache-Control": "private, no-cache, must-revalidate",
+    });
+  },
+  {
+    requiredRoles: ["user"],
+    customHeaders: {
+      "Cache-Control": "private, no-cache, must-revalidate",
+    },
   }
-});
-
+);

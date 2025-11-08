@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import connectDB from "../../../../lib/server/db";
+import getMongooseConnection from "../../../../lib/server/db";
 //import Product from "../../../../lib/models/products";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import ProductDetails from "../../../../lib/models/productDetails";
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const origin = request.headers.get("origin");
 
   try {
-    await connectDB();
+    await getMongooseConnection();
 
     const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get("category") as ProductCategory | null;
