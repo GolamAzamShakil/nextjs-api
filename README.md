@@ -9,6 +9,39 @@ _API endpoints for user and product related data resources._
 [https://nextjs-api-five-psi.vercel.app/](https://nextjs-api-five-psi.vercel.app/)
 
 
+## Tech Stack
+
+**Client:** Nextjs
+
+**Server:** Nextjs
+
+**Styling:** TailwindCSS
+
+**Database:** Mongodb
+
+**Authentication method:** JWT, Bearer
+
+**Authentication provider:** Better-auth
+
+
+## Features
+
+**User**
+- Password hashing via Bcryptjs
+- Better-auth authentication system
+- Custom JWT cookies, Bearer token system
+- Protected routes that requires authenticated request
+- Admin role required routes
+- Proper cors and headers setup
+
+**Product**
+- Paginated data view
+- Category based data finding
+- Custom filters and search terms
+- Cache control mechanism
+- Proper cors and headers setup
+
+
 ## Usage example
 GET Request
 ```sh
