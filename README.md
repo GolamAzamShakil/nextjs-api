@@ -42,6 +42,18 @@ _API endpoints for user and product related data resources._
 - Proper cors and headers setup
 
 
+## Lessons Learned
+
+- App routing
+- Route protection
+- Authenticated route
+- Role based access route
+- JWT cookie encoding decoding
+- Bearer token management
+- Better-auth implementation
+- CORS Headers setup
+
+
 ## Usage example
 GET Request
 ```sh
@@ -78,6 +90,19 @@ POST Request
     "productImageLink": ""
 }
 ```
+
+
+## Related
+
+Here are some of my related projects
+
+[E-commerce Outlet](https://github.com/GolamAzamShakil/ecommerceReactApp)
+
+[Fetch Post Application](https://github.com/GolamAzamShakil/ApiFetchPostApplication)
+
+## 🔗 Links
+[![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://golam-azam.vercel.app/)
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/md-golam-azam-4a6a30291/)
 
 
 ## Meta
