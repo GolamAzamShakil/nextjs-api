@@ -32,7 +32,7 @@ Roles in descending order of privilege: \`admin\` › \`editor\` › \`viewer\`
     },
     servers: [
       {
-        url: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
+        url: process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/api\/?$/, "") || "",
         description: `${process.env.NODE_ENV ? process.env.NODE_ENV.charAt(0).toUpperCase() + process.env.NODE_ENV.slice(1).toLowerCase() : "Not defined"} server`,
       },
     ],
