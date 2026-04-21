@@ -1,4 +1,3 @@
-import { tmpFunc } from "@/app/api/tmp";
 import swaggerJsdoc from "swagger-jsdoc";
 
 const options: swaggerJsdoc.Options = {
