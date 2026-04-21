@@ -4,6 +4,32 @@ import { ProductCategory } from "../../../../../../lib/interfaces/IProduct";
 import { Product, ProductDetails } from "../../../../../../lib/models";
 import { mergePublicHeaders } from "../../../../../../lib/server/cors";
 
+/**
+ * @openapi
+ * /api/products/category/{category}:
+ *   get:
+ *     tags: [Public]
+ *     summary: Get categorized products listing
+ *     parameters:
+ *       - in: path
+ *         name: category
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: ["clothings", "appliances", "groceries", "electrics", "books"]
+ *         example: clothings
+ *         description: The category of the products.
+ *     responses:
+ *       200:
+ *         description: User found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found.
+ */
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { category: string } }

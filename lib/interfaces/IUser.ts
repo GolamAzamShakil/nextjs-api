@@ -11,5 +11,7 @@ export interface IUser extends Document {
   updatedAt: Date
 };
 
-export const allowedRoles = ['guest', 'user', 'moderator', 'admin'];
+export const allowedRoles = ['guest', 'viewer', 'user', 'moderator', 'editor', 'admin'];
+/* export type RoleType = typeof allowedRoles[number];
+*/
 

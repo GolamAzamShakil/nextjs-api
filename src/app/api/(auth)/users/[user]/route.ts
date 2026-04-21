@@ -4,10 +4,30 @@ import getMongooseConnection from "../../../../../../lib/server/db";
 import User from "../../../../../../lib/models/users";
 import { hashPassword } from "../../../../../../lib/authentication/psdHashing";
 
+/**
+ * @openapi
+ * /api/users/{userId}:
+ *   get:
+ *     tags: [Users]
+ *     summary: Get user by userId
+ *     parameters:
+ *       - $ref: '#/components/parameters/UserId'
+ *     responses:
+ *       200:
+ *         description: User found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found.
+ */
+
 //const ObjectId = require("mongoose").Types.ObjectId
 
 export const GET = async (request: Request, context: { params: any }) => {
   const userId = context.params.user;
+  const userName = userId.startsWith("user_") ? userId : null;
 
   try {
     await getMongooseConnection();

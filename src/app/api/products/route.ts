@@ -7,6 +7,51 @@ import { Product } from "../../../../lib/models";
 import { ProductCategory } from "../../../../lib/interfaces/IProduct";
 import { mergePublicHeaders } from "../../../../lib/server/cors";
 
+/**
+ * @openapi
+ * /api/products:
+ *   get:
+ *     tags: [Public]
+ *     summary: Products listing
+ *     security: []
+ *     description: |
+ *       Fully public endpoint for products listing — no token or cookie required.
+ *       Useful for uptime checks and verifying the API is reachable.
+ *     parameters:
+ *       - in: query
+*         name: category
+*         required: false
+*         schema:
+*           type: string
+*         example: clothings
+*       - in: query
+*         name: minAvailability
+*         required: false
+*       - in: query
+*         name: search
+*         required: false
+*         schema:
+*           type: string
+*         example: men
+ *     responses:
+ *       200:
+ *         description: Products listing is successful.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                 version:
+ *                   type: string
+ *                   example: "1.0.0"
+ */
+
 //export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {

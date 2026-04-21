@@ -7,6 +7,35 @@ import { User } from "../../../../../../lib/models";
 import { IUser } from "../../../../../../lib/interfaces/IUser";
 import { mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
 import getMongooseConnection from "../../../../../../lib/server/db";
+import { left, leftInclusive, setRoles, userRoleRanking } from "../../../../../../lib/userUtilities/userRoleUtilities";
+
+/**
+ * @openapi
+ * /api/user/profile:
+ *   get:
+ *     tags: [Protected]
+ *     summary: Get current user profile
+ *     description: |
+ *       Accessible by any authenticated user regardless of role.
+ *       Accepts either a Bearer token or a session cookie.
+ *     security:
+ *       - BearerAuth: []
+ *       - CookieAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile returned.
+ *         headers:
+ *           X-RateLimit-Limit:
+ *             $ref: '#/components/headers/XRateLimitLimit'
+ *           X-RateLimit-Remaining:
+ *             $ref: '#/components/headers/XRateLimitRemaining'
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
 
 export const GET = requireAuth(
   async (request: AuthenticatedRequest) => {
@@ -21,7 +50,7 @@ export const GET = requireAuth(
         {
           success: false,
           message: "User not found",
-        }
+        },
         //{ status: 404, headers: mergePublicHeadersWithCredentials(origin) }
       );
     }
@@ -37,7 +66,7 @@ export const GET = requireAuth(
           isMfaEnabled: user.isMfaEnabled,
           roles: user.roles,
         },
-      }
+      },
       // {
       //   status: 200,
       //   headers: mergePublicHeadersWithCredentials(origin, {
@@ -47,11 +76,11 @@ export const GET = requireAuth(
     );
   },
   {
-    requiredRoles: ["user"],
+    requiredRoles: [...setRoles("user", left), ...setRoles("user")],
     customHeaders: {
       "Cache-Control": "private, no-cache, must-revalidate",
     },
-  }
+  },
 );
 
 /* export const = requireAuth(async (request: AuthenticatedRequest) => {
@@ -105,7 +134,41 @@ export const GET = requireAuth(
   }
 }); */
 
-export const POST = requireAuth(
+/**
+ * @openapi
+ * /api/user/profile:
+ *    put:
+ *     tags: [Protected]
+ *     summary: Update current user profile
+ *     description: |
+ *       Accessible by any authenticated user regardless of role.
+ *       Accepts either a Bearer token or a session cookie.
+ *     security:
+ *       - BearerAuth: []
+ *       - CookieAuth: []
+ *     requestBody:
+ *        required: true
+ *        content:
+ *            application/json:
+ *                examples:
+ *                    value: JohnTery41
+ *     responses:
+ *       200:
+ *         description: User profile returned.
+ *         headers:
+ *           X-RateLimit-Limit:
+ *             $ref: '#/components/headers/XRateLimitLimit'
+ *           X-RateLimit-Remaining:
+ *             $ref: '#/components/headers/XRateLimitRemaining'
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+
+export const PUT = requireAuth(
   async (request: AuthenticatedRequest) => {
     const body = await request.json();
     const { userName } = body;
@@ -121,7 +184,7 @@ export const POST = requireAuth(
         new: true, // Return updated document
         runValidators: true, // Run schema validators
         select: "-userPassword",
-      }
+      },
     ).lean<Omit<IUser, "userPassword">>();
 
     if (!updatedUser) {
@@ -130,7 +193,7 @@ export const POST = requireAuth(
           success: false,
           message: "User not found",
         },
-        { status: 404, headers: mergePublicHeadersWithCredentials(origin) }
+        { status: 404, headers: mergePublicHeadersWithCredentials(origin) },
       );
     }
 
@@ -147,9 +210,9 @@ export const POST = requireAuth(
     });
   },
   {
-    requiredRoles: ["user"],
+    requiredRoles: [...setRoles("user"), ...setRoles("user", left)],
     customHeaders: {
       "Cache-Control": "private, no-cache, must-revalidate",
     },
-  }
+  },
 );

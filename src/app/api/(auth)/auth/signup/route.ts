@@ -11,12 +11,55 @@ import { IUser } from "../../../../../../lib/interfaces/IUser";
 import { mergePublicHeadersWithCredentials } from "../../../../../../lib/server/cors";
 import { GenerateUserId } from "../../../../../../lib/userUtilities/generateUserId";
 import {
-  validateSignUpInput,
-  verifySignupInput,
+  verifySignUpInput,
+  validateSignupInput,
 } from "../../../../../../lib/validation/validateVerifySignupData";
 
+/**
+ * @openapi
+ * /api/auth/signup:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Register a new user
+ *     security: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/signupRequest'
+ *     responses:
+ *       201:
+ *         description: User created. Token issued automatically.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/signupResponse'
+ *       409:
+ *         description: Email already registered.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               message: "Email already in use"
+ *               code: "EMAIL_CONFLICT"
+ *       400:
+*         description: Verification failed.
+*         content:
+*           application/json:
+*             schema:
+*               $ref: '#/components/schemas/Error'
+ *       422:
+ *         description: Validation failed.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 export async function POST(
-  request: NextRequest
+  request: NextRequest,
 ): Promise<NextResponse<AuthResponse>> {
   try {
     const origin = request.headers.get("origin");
@@ -24,41 +67,41 @@ export async function POST(
 
     const body = await request.json();
     const {
-      validated,
-      errors: validationErrors,
-      isValid: validatable,
-    } = validateSignUpInput(body);
-    const {
-      verified,
+      verified: verified,
       errors: verificationErrors,
       isVerified: verifiable,
-    } = verifySignupInput(body);
-
-    if (!validatable) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Validation failed",
-          error: validationErrors,
-        },
-        { status: 400 }
-      );
-    }
+    } = verifySignUpInput(body);
+    const {
+      valid: validated,
+      errors: validationErrors,
+      isValid: validatable,
+    } = validateSignupInput(body);
 
     if (!verifiable) {
       return NextResponse.json(
         {
           success: false,
-          message: "Verification failed",
+          message: "Validation failed",
           error: verificationErrors,
         },
-        { status: 400 }
+        { status: 400 },
+      );
+    }
+
+    if (!validatable) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Verification failed",
+          error: validationErrors,
+        },
+        { status: 422 },
       );
     }
 
     const existingUser = await User.findOne(
-      { userEmail: verified.userEmail },
-      "-userPassword"
+      { userEmail: validated.userEmail },
+      "-userPassword",
     ).lean<Omit<IUser, "userPassword">>();
     if (existingUser) {
       return NextResponse.json(
@@ -66,19 +109,22 @@ export async function POST(
           success: false,
           message: "User with this email already exists",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
-    const hashedPassword = await PsdUtils.hashPassword(verified.userPassword);
+    const hashedPassword = await PsdUtils.hashPassword(validated.userPassword);
 
     const newUser = await User.create({
-      userId: GenerateUserId.nanoidWrapper("user"),
-      userName: verified.userName,
-      userEmail: verified.userEmail,
+      userId: GenerateUserId.nanoidWrapper(
+        `${validated.roles.join("_") || "guest"}_${validated.userName}_`,
+        5,
+      ),
+      userName: validated.userName,
+      userEmail: validated.userEmail,
       userPassword: hashedPassword,
-      isMfaEnabled: verified.isMfaEnabled, // Boolean(isMfaEnabled)
-      roles: verified.roles,
+      isMfaEnabled: validated.isMfaEnabled, // Boolean(isMfaEnabled)
+      roles: validated.roles,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -104,7 +150,7 @@ export async function POST(
         headers: mergePublicHeadersWithCredentials(origin, {
           "Cache-Control": "no-store, no-cache, must-revalidate",
         }),
-      }
+      },
     );
 
     response.cookies.set("jwt_auth_token", token, {
@@ -128,7 +174,7 @@ export async function POST(
           success: false,
           message: "User with this email already exists",
         },
-        { status: 409, headers: mergePublicHeadersWithCredentials(origin) }
+        { status: 409, headers: mergePublicHeadersWithCredentials(origin) },
       );
     }
 
@@ -149,7 +195,7 @@ export async function POST(
         success: false,
         message: "Internal server error",
       },
-      { status: 500, headers: mergePublicHeadersWithCredentials(origin) }
+      { status: 500, headers: mergePublicHeadersWithCredentials(origin) },
     );
   }
 }

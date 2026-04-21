@@ -3,6 +3,48 @@ import getMongooseConnection from "../../../../../lib/server/db";
 import { Product } from "../../../../../lib/models";
 import { mergePublicHeaders } from "../../../../../lib/server/cors";
 
+/**
+ * @openapi
+ * /api/products/paginated:
+ *   get:
+ *     tags: [Public]
+ *     summary: Paginated products listing
+ *     security: []
+ *     description: |
+ *       Fully public endpoint for products listing with pagination — no token or cookie required.
+ *       Useful for uptime checks and verifying the API is reachable.
+ *     parameters:
+ *       - in: query
+*         name: page
+*         required: true
+*         example: 2
+*       - in: query
+*         name: limit
+*         required: false
+*         example: 3
+*       - in: query
+*         name: sortBy
+*         required: false
+*         schema:
+*           type: string
+*           enum: ["createdAt", "updatedAt", "productName", "productId", "productAvailability"]
+*         example: createdAt
+*       - in: query
+*         name: sortOrder
+*         required: false
+*         schema:
+*           type: string
+*           enum: ["asc", "des"]
+*         example: asc
+ *     responses:
+ *       200:
+ *         description: Products listing is successful.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Product'
+ */
+
 export async function GET(request: NextRequest) {
   const origin = request.headers.get("origin");
 
@@ -28,10 +70,21 @@ export async function GET(request: NextRequest) {
       "productId",
       "productDetails.productAvailability",
     ];
-    const validSortBy = allowedSortFields.includes(sortBy)
+
+    let validSortBy;
+    if (sortBy && sortBy.toLowerCase().startsWith("productavailability")) {
+      validSortBy = "productDetails.productAvailability"
+    }
+    else if (sortBy && allowedSortFields.includes(sortBy)) {
+      validSortBy = sortBy
+    }
+    else {
+      validSortBy = "createdAt"
+    }
+    /* const validSortBy = allowedSortFields.includes(sortBy)
       ? sortBy
       : "createdAt";
-
+ */
     const sort: any = {};
     sort[validSortBy] = sortOrder;
 

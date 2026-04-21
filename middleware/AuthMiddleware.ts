@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { DecodedToken, JWTPayload } from "../lib/interfaces/IAuth";
 import { JWTUtils } from "../lib/authentication/jwtUtils";
 import { mergeAuthHeaders, mergePublicHeadersWithCredentials } from "../lib/server/cors";
+import { nanoid } from "nanoid";
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: DecodedToken;
@@ -266,6 +267,15 @@ export function requireAuth(
     const cacheControl = options.customHeaders?.["Cache-Control"];
     if (cacheControl && !response.headers.has("Cache-Control")) {
       response.headers.set("Cache-Control", cacheControl);
+    }
+    if (options.customHeaders) {
+      response.headers.set("X-Request-ID", nanoid(5));
+    }
+    if (options.customHeaders) {
+      response.headers.set("X-Auth-Method", authResult.authMode ?? "cookie");
+    }
+    if (options.customHeaders) {
+      response.headers.set("X-Role", "myFoot");
     }
 
 

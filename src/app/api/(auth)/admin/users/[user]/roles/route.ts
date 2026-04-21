@@ -14,6 +14,49 @@ import {
   IUser,
 } from "../../../../../../../../lib/interfaces/IUser";
 
+/**
+ * @openapi
+ * /api/admin/users/{userId}/roles:
+ *   get:
+ *     tags: [Admin]
+ *     summary: List all users (admin only)
+ *     description: |
+ *       Requires role: `admin`. Enforced by the RBAC dependency function — not middleware.
+ *
+ *       **To see RBAC in action:**
+ *       - Login as `admin@demo.com` → executes successfully ✓
+ *       - Login as `editor@demo.com` or `viewer@demo.com` → returns **403 Forbidden**
+ * 
+ *     security:
+ *       - BearerAuth: []
+ *       - CookieAuth: []
+ *     parameters:
+ *       - in: path
+*         name: userId
+*         required: true
+*         schema:
+*           type: string
+*         example: JohnTery41
+ *     responses:
+ *       200:
+ *         description: User and user's roles list returned. Only reachable with admin role.
+ *         headers:
+ *           X-RateLimit-Limit:
+ *             $ref: '#/components/headers/XRateLimitLimit'
+ *           X-RateLimit-Remaining:
+ *             $ref: '#/components/headers/XRateLimitRemaining'
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
 // User's [user] current roles
 export const GET = requireAuth(
   async (request: AuthenticatedRequest) => {
@@ -44,9 +87,9 @@ export const GET = requireAuth(
         );
       }
 
-      const userId = request.nextUrl.pathname.split("/")[4];
+      const userIdentity = request.nextUrl.pathname.split("/")[4];
 
-      const user = await User.findOne({ userId })
+      const user = await User.findOne({ userIdentity })
         .select("userId userName userEmail roles")
         .lean<Omit<IUser, "userPassword">>();
 
@@ -86,11 +129,11 @@ export const GET = requireAuth(
         }
       );
     }
-  } /* {
+  }, {
   customHeaders: {
-    "Cache-Control": "no-store, no-cache, must-revalidate"
+    "Cache-Control": "no-store, no-cache, must-revalidate",
   }
-} */
+}
 );
 
 // Update user's [user] roles
@@ -149,7 +192,9 @@ export const PUT = requireAuth(async (request: AuthenticatedRequest) => {
     }
 
     const validatedRoles = roles.filter(
-      (roles) => typeof roles === "string" && allowedRoles.includes(roles)
+      (role) => typeof roles === "string" && allowedRoles.includes(role),
+      //(role) => typeof role === "string" && allowedRoles.includes(role as RoleType)
+      //isRole
     );
 
     if (validatedRoles.length === 0) {

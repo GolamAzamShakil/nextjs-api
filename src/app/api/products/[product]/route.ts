@@ -6,6 +6,34 @@ import ProductDetails from "../../../../../lib/models/productDetails";
 import { Product } from "../../../../../lib/models";
 import { mergePublicHeaders } from "../../../../../lib/server/cors";
 
+/**
+ * @openapi
+ * /api/products/{productId}:
+ * get:
+ *    tags:
+ *      - Public
+ *    summary: Single product listing
+ *    security: []
+ *    description: >
+ *      Fully public endpoint for any single or individual product listing
+ *      — no token or cookie required.
+ *    parameters:
+ *      - in: path
+ *        name: productId
+ *        required: true
+ *        schema:
+ *          type: string
+ *        example: 01ApOv
+ *    responses:
+ *      200:
+ *        description: Product listing is successful.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/Product"
+ */
+
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { productId: string } }
@@ -120,6 +148,45 @@ export async function GET(
     );
   }
 }; */
+
+/**
+ * @openapi
+ * /api/products/{productId}:
+ *  post:
+ *    tags:
+ *      - Public
+ *    summary: Single product creation
+ *    security: []
+ *    description: >
+ *      Fully public endpoint for creating any single or individual product
+ *      — no token or cookie required.
+ *    parameters:
+ *      - in: path
+ *        name: productId
+ *        required: true
+ *        schema:
+ *          type: string
+ *        example: 02ApBl
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: "#/components/schemas/productPostRequest"
+ *          examples:
+ *            value:
+ *              productAltId: 1UtencilsAppliances
+ *              productCategory: appliances
+ *              productImageLink: CloudinaryLink
+ *              productAvailability: 5
+ *    responses:
+ *      200:
+ *        description: Product creation is successful.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/Product"
+ */
 
 export const POST = async (request: Request, context: { params: any }) => {
   const productId = context.params.product;
