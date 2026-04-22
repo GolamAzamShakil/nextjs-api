@@ -5,6 +5,58 @@ import { JWTUtils } from "../../../../../../lib/authentication/jwtUtils";
 import { User } from "../../../../../../lib/models";
 import { IUser } from "../../../../../../lib/interfaces/IUser";
 
+/**
+ * @openapi
+ * /api/auth/refresh:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Refresh expired tokens
+ *     security: []
+ *     description: |
+ *       Accepts a valid `refreshToken` in the request body.
+ *       Returns a new `accessToken` and a rotated `refreshToken`.
+ *
+ *       The previous refresh token is invalidated after this call.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RefreshTokenRequest'
+ *     responses:
+ *       200:
+ *         description: Tokens refreshed successfully.
+ *         headers:
+ *           Cache-Control:
+ *             description: Response must not be cached.
+ *             schema:
+ *               type: string
+ *               example: "no-store, no-cache, must-revalidate"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/RefreshTokenResponse'
+ *       401:
+ *         description: Refresh token missing, expired, or already rotated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               message: "Invalid or expired refresh token"
+ *               code: "REFRESH_TOKEN_INVALID"
+ *       403:
+ *         description: Refresh token reuse detected (rotation violation).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               message: "Token reuse detected"
+ *               code: "REFRESH_TOKEN_REUSED"
+ */
+
+
 interface RefreshRequest {
   refreshToken: string;
 }

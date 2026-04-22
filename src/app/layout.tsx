@@ -1,29 +1,31 @@
-import type { Metadata } from "next";
-import { Poppins } from 'next/font/google';
 import "./globals.css";
+import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 
 const poppins = Poppins({
-  weight: ['300', '400', '500', '600', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-poppins',
-})
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Next App API",
-  description: "A next app for api endpoint",
+  title: "Next.js REST API",
+  description: "API endpoints for CRUD operation on products and users related data",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body
-        className={`${poppins.variable} antialiased`}
-      >
+    <html
+      lang="en"
+      className={`dark ${poppins.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-screen bg-background font-sans antialiased">
         {children}
       </body>
     </html>

@@ -10,9 +10,7 @@ import { mergePublicHeadersWithCredentials } from "../../../../../../lib/server/
  *     description: |
  *       Clears the session cookie. The Bearer token is stateless and
  *       expires naturally — remove it from the Authorize dialog manually.
- *     security:
- *       - BearerAuth: []
- *       - CookieAuth: []
+ *     security: []
  *     responses:
  *       200:
  *         description: Signed out successfully.

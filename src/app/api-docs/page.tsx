@@ -16,18 +16,33 @@ export default function SwaggerPage() {
   }, []);
 
   const responseInterceptor = (response: any) => {
-    if (response.url?.includes("/api/auth/login") && response.status === 200) {
+    if (response.url?.includes("/api/auth/signin") && response.status === 200) {
+      try {
+        const body = JSON.parse(response.text || "{}");
+
+        if (body.accessToken && swaggerRef.current) {
+          swaggerRef.current.preauthorizeApiKey("BearerAuth", body.accessToken);
+        }
+
+        if (body.success) {
+          setTokenCaptured(true);
+          setTimeout(() => setTokenCaptured(false), 4000);
+        }
+      } catch { /* Non-JSON response — ignore silently */ }
+    }
+
+    if (
+      response.url?.includes("/api/auth/refresh") &&
+      response.status === 200
+    ) {
       try {
         const body = JSON.parse(response.text || "{}");
         if (body.accessToken && swaggerRef.current) {
           swaggerRef.current.preauthorizeApiKey("BearerAuth", body.accessToken);
-          setTokenCaptured(true);
-          setTimeout(() => setTokenCaptured(false), 4000);
         }
-      } catch {
-        // Non-JSON response — ignore silently
-      }
+      } catch {}
     }
+
     return response;
   };
 

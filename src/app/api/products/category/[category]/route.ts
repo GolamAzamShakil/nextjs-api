@@ -10,6 +10,10 @@ import { mergePublicHeaders } from "../../../../../../lib/server/cors";
  *   get:
  *     tags: [Public]
  *     summary: Get categorized products
+ *     description: |
+ *       Get products according to the category.
+ *       Provide any allowed category as URL parameter.
+ *     security: []
  *     parameters:
  *       - in: path
  *         name: category

@@ -10,17 +10,23 @@ import { hashPassword } from "../../../../../../lib/authentication/psdHashing";
  *   get:
  *     tags: [Users]
  *     summary: Get user by userId
+ *     description: |
+ *       Get user info by.
+ *       providing userId in URL parameter.
+ *     security: []
  *     parameters:
- *       - $ref: '#/components/parameters/UserId'
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         example: user_JohnTery41
  *     responses:
  *       200:
- *         description: User found.
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
  *       404:
- *         description: User not found.
+ *         description: User not found in the database.
  */
 
 //const ObjectId = require("mongoose").Types.ObjectId
@@ -54,6 +60,43 @@ export const GET = async (request: Request, context: { params: any }) => {
     );
   }
 };
+
+/**
+ * @openapi
+ * /api/users/{userId}:
+ *   post:
+ *     tags: [Users]
+ *     summary: Create user by userId
+ *     description: |
+ *       Create new user by providing
+ *       userId in URL parameter and userName, userEmail, userPassword, isMfaEnabled in request body.
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         example: user_JohnTery41
+ *     requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             examples:
+ *               value:
+ *                 userName: user_JohnTery41
+ *                 userEmail: johntery41@demo.com
+ *                 userPassword: "#Password"
+ *                 isMfaEnabled: false
+ *     responses:
+ *       200:
+ *         description: User is created.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found.
+ */
+
 
 export const POST = async (request: Request, context: { params: any }) => {
   const userId = context.params.user;
@@ -102,6 +145,40 @@ export const POST = async (request: Request, context: { params: any }) => {
     );
   }
 };
+
+/**
+ * @openapi
+ * /api/users/{userId}:
+ *   patch:
+ *     tags: [Users]
+ *     summary: Update user by userId
+ *     description: |
+ *       Update existing user by providing
+ *       userId in URL parameter and newUserName, isMfaEnabled in request body.
+ *     security: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         example: user_JohnTery41
+ *     requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             examples:
+ *               value:
+ *                 newUserName: user_JohnTery41
+ *                 isMfaEnabled: false
+ *     responses:
+ *       200:
+ *         description: User is updated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found.
+ */
 
 export const PATCH = async (request: Request, context: { params: any }) => {
   const userId = context.params.user;

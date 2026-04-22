@@ -158,7 +158,7 @@ Roles in descending order of privilege: \`admin\` › \`editor\` › \`viewer\`
             authMode: { type: "string", example: "bearer" },
           },
         },
-        signinResponse: {
+        /* signinResponse: {
           type: "object",
           properties: {
             user: {
@@ -176,6 +176,27 @@ Roles in descending order of privilege: \`admin\` › \`editor\` › \`viewer\`
               type: "integer",
               example: 900,
               description: "Token expiry in seconds.",
+            },
+          },
+        }, */
+        // lib/swagger.ts — update signinResponse schema
+        signinResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            message: { type: "string", example: "Sign in successful" },
+            user: { $ref: "#/components/schemas/User" },
+            accessToken: {
+              type: "string",
+              description:
+                "JWT access token. Auto-applied to Swagger UI Bearer auth on signin.",
+              example: "eyJhbGci...accessToken",
+            },
+            refreshToken: {
+              type: "string",
+              description:
+                "Refresh token. Use at /api/auth/refresh when access token expires.",
+              example: "eyJhbGci...refreshToken",
             },
           },
         },
@@ -221,7 +242,10 @@ Roles in descending order of privilege: \`admin\` › \`editor\` › \`viewer\`
         GuestUser: {
           type: "object",
           properties: {
-            userId: { type: "string", example: `${GenerateUserId.nanoidWrapper('guest')}` },
+            userId: {
+              type: "string",
+              example: `${GenerateUserId.nanoidWrapper("guest")}`,
+            },
             userEmail: { type: "null" },
             userName: {
               type: "string",
@@ -259,6 +283,35 @@ Roles in descending order of privilege: \`admin\` › \`editor\` › \`viewer\`
             message: { type: "string", example: "Guest session created" },
             user: { $ref: "#/components/schemas/GuestUser" },
             session: { $ref: "#/components/schemas/GuestSession" },
+          },
+        },
+        RefreshTokenRequest: {
+          type: "object",
+          required: ["refreshToken"],
+          properties: {
+            refreshToken: {
+              type: "string",
+              description:
+                "The refresh token issued at signin or previous refresh.",
+              example: "eyJhbGci...refreshToken",
+            },
+          },
+        },
+
+        RefreshTokenResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            accessToken: {
+              type: "string",
+              description: "New short-lived access token.",
+              example: "eyJhbGci...accessToken",
+            },
+            refreshToken: {
+              type: "string",
+              description: "New refresh token. Previous one is invalidated.",
+              example: "eyJhbGci...refreshToken",
+            },
           },
         },
       },
