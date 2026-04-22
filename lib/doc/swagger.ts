@@ -1,4 +1,5 @@
 import swaggerJsdoc from "swagger-jsdoc";
+import { GenerateUserId } from "../userUtilities/generateUserId";
 
 
 const options: swaggerJsdoc.Options = {
@@ -150,10 +151,10 @@ Roles in descending order of privilege: \`admin\` › \`editor\` › \`viewer\`
         },
         signinRequest: {
           type: "object",
-          required: ["email", "password", "authMode"],
+          required: ["userEmail", "userPassword", "authMode"],
           properties: {
-            email: { type: "string", format: "email" },
-            password: { type: "string", format: "password", minLength: 8 },
+            userEmail: { type: "string", format: "email" },
+            userPassword: { type: "string", format: "password", minLength: 8 },
             authMode: { type: "string", example: "bearer" },
           },
         },
@@ -215,6 +216,49 @@ Roles in descending order of privilege: \`admin\` › \`editor\` › \`viewer\`
               type: "string",
               description: "Auto-issued access token on signup.",
             },
+          },
+        },
+        GuestUser: {
+          type: "object",
+          properties: {
+            userId: { type: "string", example: `${GenerateUserId.nanoidWrapper('guest')}` },
+            userEmail: { type: "null" },
+            userName: {
+              type: "string",
+              example: `Guest_${Date.now().toString().slice(-6)}`,
+            },
+            roles: { type: "string", enum: ["guest"], example: ["guest"] },
+            createdAt: { type: "string", format: "date-time" },
+          },
+        },
+
+        GuestSession: {
+          type: "object",
+          properties: {
+            sessionId: {
+              type: "string",
+              example: "guest_session_1714123456789",
+              description: "Unique session ID generated from timestamp.",
+            },
+            userId: {
+              type: "string",
+              example: "guest_a1b2c3d4e5",
+            },
+            expiresAt: {
+              type: "string",
+              format: "date-time",
+              description: "Session expiry — 2 hours from creation.",
+            },
+          },
+        },
+
+        GuestSigninResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            message: { type: "string", example: "Guest session created" },
+            user: { $ref: "#/components/schemas/GuestUser" },
+            session: { $ref: "#/components/schemas/GuestSession" },
           },
         },
       },

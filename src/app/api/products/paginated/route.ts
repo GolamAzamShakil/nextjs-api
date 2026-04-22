@@ -8,7 +8,7 @@ import { mergePublicHeaders } from "../../../../../lib/server/cors";
  * /api/products/paginated:
  *   get:
  *     tags: [Public]
- *     summary: Paginated products listing
+ *     summary: Get paginated products
  *     security: []
  *     description: |
  *       Fully public endpoint for products listing with pagination — no token or cookie required.

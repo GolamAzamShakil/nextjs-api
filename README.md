@@ -1,6 +1,6 @@
 # Project Name
 
-NextjsAPI
+Next.js REST API  
 _API endpoints for user and product related data resources._
 
 ![](header.png)
@@ -22,6 +22,8 @@ _API endpoints for user and product related data resources._
 **Authentication method:** JWT, Bearer
 
 **Authentication provider:** Better-auth
+
+**Documentation:** Swagger
 
 
 ## Features
@@ -52,6 +54,12 @@ _API endpoints for user and product related data resources._
 - Bearer token management
 - Better-auth implementation
 - CORS Headers setup
+
+
+## Documentation
+
+[Documentation - https://nextjs-api-five-psi.vercel.app/api-docs](https://nextjs-api-five-psi.vercel.app/api-docs)  
+This doc is generated with Swagger UI and configured according to the implementation of the API
 
 
 ## Usage example
@@ -90,6 +98,15 @@ POST Request
     "productImageLink": ""
 }
 ```
+
+
+## Roadmap
+
+- ~~Role Based Access Control (RBAC)~~
+
+- ~~Swagger Doc~~
+
+- Rate limiting feature (coming soon..)
 
 
 ## Related

@@ -18,7 +18,7 @@ import {
  * /api/auth/signin:
  *   post:
  *     tags: [Auth]
- *     summary: signin and obtain tokens
+ *     summary: Signin and obtain tokens
  *     security: []
  *     description: |
  *       **Start here.** Issues both a Bearer token, Refresh token and a Session cookie simultaneously.
@@ -39,32 +39,26 @@ import {
  *               summary: "Admin — full access"
  *               value:
  *                 userEmail: admin@demo.com
- *                 userPassword: #adminDemo1234
+ *                 userPassword: "#adminDemo1234"
  *                 authMode: cookie
  *             editor:
  *               summary: "Editor — content routes only"
  *               value:
  *                 userEmail: editor@demo.com
- *                 userPassword: #editorDemo1234
+ *                 userPassword: "#editorDemo1234"
  *                 authMode: cookie
  *             viewer:
  *               summary: "Viewer — content read-only"
  *               value:
  *                 userEmail: viewer@demo.com
- *                 userPassword: #viewerDemo1234
+ *                 userPassword: "#viewerDemo1234"
  *                 authMode: cookie
  *             user:
 *               summary: "User — content read and write"
 *               value:
 *                 userEmail: admin@demo.com
-*                 userPassword: #adminDemo1234
+*                 userPassword: "#userDemo1234"
 *                 authmode: cookie
- *             guest:
-*               summary: "Guest - limited time of access"
-*               value:
-*                 userEmail: guest@demo.com
-*                 userPassword: #guestDemo1234
-*                 authmode: bearer
  *     responses:
  *       200:
  *         description: signin successful. Bearer token auto-applied by Swagger UI.

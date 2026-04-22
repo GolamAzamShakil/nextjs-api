@@ -6,58 +6,43 @@ import { GenerateUserId } from "../../../../../../../lib/userUtilities/generateU
 
 /**
  * @openapi
- * /api/auth/signin:
+ * /api/auth/signin/guest:
  *   post:
  *     tags: [Auth]
- *     summary: signin and obtain tokens
+ *     summary: Create a guest session
  *     security: []
  *     description: |
- *       **Start here.** Issues both a Bearer token and a session cookie simultaneously.
+ *       Creates a temporary guest session without any credentials.
+ *       Issues a short-lived JWT (2 hours) as both a Bearer token and
+ *       a HttpOnly cookie (`jwt_auth_token`).
  *
- *       After executing this endpoint:
- *       - The **Bearer token** is auto-applied to all subsequent Swagger requests
- *       - The **session cookie** is stored automatically by the browser
- *
- *       Pick a role from the example dropdown to test different RBAC scenarios.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/signinRequest'
- *           examples:
- *             admin:
- *               summary: "Admin — full access"
- *               value:
- *                 email: admin@demo.com
- *                 password: demo1234
- *             editor:
- *               summary: "Editor — content routes only"
- *               value:
- *                 email: editor@demo.com
- *                 password: demo1234
- *             viewer:
- *               summary: "Viewer — read-only (will 403 on admin routes)"
- *               value:
- *                 email: viewer@demo.com
- *                 password: demo1234
+ *       No request body required — just execute directly.
  *     responses:
  *       200:
- *         description: signin successful. Bearer token auto-applied by Swagger UI.
+ *         description: Guest session created successfully.
  *         headers:
  *           Set-Cookie:
- *             description: HttpOnly session cookie set automatically by the browser.
+ *             description: |
+ *               HttpOnly guest session cookie. Expires in 2 hours.
+ *               `SameSite=Lax` in development, `SameSite=None; Secure` in production.
  *             schema:
  *               type: string
- *               example: "session=<jwt>; HttpOnly; Secure; SameSite=Lax; Path=/"
- *           X-Request-ID:
- *             $ref: '#/components/headers/XRequestID'
+ *               example: "jwt_auth_token=<token>; HttpOnly; SameSite=Lax; Path=/; Max-Age=7200"
+ *           Cache-Control:
+ *             description: Response is private and must revalidate.
+ *             schema:
+ *               type: string
+ *               example: "private, no-cache, must-revalidate"
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/signinResponse'
- *       401:
- *         $ref: '#/components/responses/Unauthorized'
+ *               $ref: '#/components/schemas/GuestSigninResponse'
+ *       500:
+ *         description: Failed to create guest session.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 export async function POST(

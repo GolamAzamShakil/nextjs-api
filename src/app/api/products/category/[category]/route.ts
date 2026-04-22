@@ -9,7 +9,7 @@ import { mergePublicHeaders } from "../../../../../../lib/server/cors";
  * /api/products/category/{category}:
  *   get:
  *     tags: [Public]
- *     summary: Get categorized products listing
+ *     summary: Get categorized products
  *     parameters:
  *       - in: path
  *         name: category
@@ -25,9 +25,9 @@ import { mergePublicHeaders } from "../../../../../../lib/server/cors";
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/User'
+ *               $ref: '#/components/schemas/Product'
  *       404:
- *         description: User not found.
+ *         description: Products not found.
  */
 
 export async function GET(
@@ -41,7 +41,7 @@ export async function GET(
 
     const { category } = params;
 
-    if (!Object.values(ProductCategory).includes(category as ProductCategory)) {
+    if (!Object.values(ProductCategory).includes(category.toLowerCase().trim() as ProductCategory)) {
       return NextResponse.json(
         {
           error: "Invalid product category",
@@ -52,7 +52,7 @@ export async function GET(
     }
 
     const matchingDetails = await ProductDetails.find({
-      productCategory: category,
+      productCategory: category.toLowerCase().trim(),
     })
       .select("_id")
       .lean()

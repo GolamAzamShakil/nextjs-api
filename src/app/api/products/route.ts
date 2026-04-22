@@ -12,10 +12,10 @@ import { mergePublicHeaders } from "../../../../lib/server/cors";
  * /api/products:
  *   get:
  *     tags: [Public]
- *     summary: Products listing
+ *     summary: Get all products
  *     security: []
  *     description: |
- *       Fully public endpoint for products listing — no token or cookie required.
+ *       Fully public endpoint to get products by category, minimum availability or any search term — no token or cookie required.
  *       Useful for uptime checks and verifying the API is reachable.
  *     parameters:
  *       - in: query
@@ -39,17 +39,7 @@ import { mergePublicHeaders } from "../../../../lib/server/cors";
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: ok
- *                 timestamp:
- *                   type: string
- *                   format: date-time
- *                 version:
- *                   type: string
- *                   example: "1.0.0"
+ *               $ref: "#/components/schemas/Product"
  */
 
 //export const dynamic = "force-dynamic";
@@ -67,8 +57,8 @@ export async function GET(request: NextRequest) {
 
     const productDetailsQuery: any = {};
 
-    if (category && Object.values(ProductCategory).includes(category)) {
-      productDetailsQuery.productCategory = category;
+    if (category && Object.values(ProductCategory).includes(category.toLowerCase().trim() as ProductCategory)) {
+      productDetailsQuery.productCategory = category.toLowerCase().trim();
     }
 
     if (minAvailability) {

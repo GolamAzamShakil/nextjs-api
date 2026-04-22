@@ -12,10 +12,10 @@ import { mergePublicHeaders } from "../../../../../lib/server/cors";
  * get:
  *    tags:
  *      - Public
- *    summary: Single product listing
+ *    summary: Get a single product
  *    security: []
  *    description: >
- *      Fully public endpoint for any single or individual product listing
+ *      Fully public endpoint to get any single product using productId
  *      — no token or cookie required.
  *    parameters:
  *      - in: path
@@ -155,10 +155,10 @@ export async function GET(
  *  post:
  *    tags:
  *      - Public
- *    summary: Single product creation
+ *    summary: Create a single product
  *    security: []
  *    description: >
- *      Fully public endpoint for creating any single or individual product
+ *      Fully public endpoint to create any single or individual product
  *      — no token or cookie required.
  *    parameters:
  *      - in: path
